@@ -25,24 +25,10 @@ package:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: functions/getRooms/index.handler
     events:
       - httpApi:
           path: /
-          method: get
-
-  createBooking:
-    handler: handler.createBooking
-    events:
-      - httpApi:
-          path: /bookings
-          method: post
-
-  getBooking:
-    handler: handler.getBooking
-    events:
-      - httpApi:
-          path: /bookings/{id}
           method: get
 
 resources:
