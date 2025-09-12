@@ -1,0 +1,22 @@
+[
+  { "roomNo": 1,  "roomName": "Lilac Breeze",      "roomType": "Single", "guestsAllowed": 1, "price": 500,  "isAvailable": true },
+  { "roomNo": 2,  "roomName": "Amber Dawn",       "roomType": "Single", "guestsAllowed": 1, "price": 500,  "isAvailable": true },
+  { "roomNo": 3,  "roomName": "Misty Harbor",     "roomType": "Single", "guestsAllowed": 1, "price": 500,  "isAvailable": true },
+  { "roomNo": 4,  "roomName": "Ivy Corner",       "roomType": "Single", "guestsAllowed": 1, "price": 500,  "isAvailable": true },
+  { "roomNo": 5,  "roomName": "Silver Birch",     "roomType": "Single", "guestsAllowed": 1, "price": 500,  "isAvailable": true },
+  { "roomNo": 6,  "roomName": "Golden Lily",      "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 7,  "roomName": "Velvet Meadow",    "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 8,  "roomName": "Azure Cove",       "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 9,  "roomName": "Maple Retreat",    "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 10, "roomName": "Rosewood Haven",   "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 11, "roomName": "Emerald Falls",    "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 12, "roomName": "Twilight Grove",   "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 13, "roomName": "Crystal Hollow",   "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 14, "roomName": "Morningstar Vale", "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 15, "roomName": "Sunset Ridge",     "roomType": "Double", "guestsAllowed": 2, "price": 1000, "isAvailable": true },
+  { "roomNo": 16, "roomName": "Majestic Horizon", "roomType": "Suite",  "guestsAllowed": 3, "price": 1500, "isAvailable": true },
+  { "roomNo": 17, "roomName": "Celestial Peak",   "roomType": "Suite",  "guestsAllowed": 3, "price": 1500, "isAvailable": true },
+  { "roomNo": 18, "roomName": "Moonlit Terrace",  "roomType": "Suite",  "guestsAllowed": 3, "price": 1500, "isAvailable": true },
+  { "roomNo": 19, "roomName": "Starlight Harbor", "roomType": "Suite",  "guestsAllowed": 3, "price": 1500, "isAvailable": true },
+  { "roomNo": 20, "roomName": "Aurora Palace",    "roomType": "Suite",  "guestsAllowed": 3, "price": 1500, "isAvailable": true }
+]
