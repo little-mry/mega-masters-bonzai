@@ -1,4 +1,7 @@
-exports.hello = async (event) => {
+import { sendResponse } from "../responses";
+import { client } from "../../services/db";
+
+export const handler = async (event) => {
   return {
     statusCode: 200,
     body: JSON.stringify({
