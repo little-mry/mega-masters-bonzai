@@ -1,69 +1,55 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in NodeJS'
-description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v4
-platform: AWS
-language: nodeJS
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, Inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+https://gist.github.com/zocom-christoffer-wallenberg/cd8ba002ea3f2bb2e4051667bf02cf5c
 
-# Serverless Framework Node HTTP API on AWS
+https://www.figma.com/board/oiBqGBCBM8oDuV33yt4WxM/Mega-Masters-Bonzai?node-id=0-1&p=f&t=9SXzJQQelEG658CN-0
 
-This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.
+Gruppexamination: Bonz.ai
+Bakgrund
 
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/) which includes Typescript, Mongo, DynamoDB and other examples.
+Bonz.ai, företaget bakom hotellet, har alltid strävat efter att vara i framkant när det gäller att använda teknik för att förbättra kundupplevelsen. De har en stark kultur av innovation och är inte rädda för att tänka utanför boxen.
 
-## Usage
+Ni har blivit anlitade för att bygga deras boknings-API, valet i detta projekt föll på en serverless arkitektur i AWS. Detta innebär att ni inte behöver oroa sig för att hantera eller underhålla servrar. Istället kan ni fokusera på att bygga och förbättra er applikation. Dessutom gör serverless arkitektur det möjligt för Bonz.ai att skala upp eller ned baserat på efterfrågan, vilket är perfekt för deras bokningssystem som kan ha olika trafik vid olika tider på dagen eller året. ☁️
 
-### Deployment
+För att lagra all bokningsinformation har DynamoDB valts, en NoSQL databas som erbjuds av AWS. DynamoDB är en utmärkt val för deras boknings-API eftersom den erbjuder snabb och förutsägbar prestanda samt automatisk skalning.
+Instruktioner
+Kravspecifikation och user stories
 
-In order to deploy the example, you need to run the following command:
+En gruppmedlem gör ett repo och bjuder in resterande gruppmedlemmar till det repot. Sedan under fliken Projects så välj ett nytt projekt och kopiera över alla user stories. Utifrån dessa user stories så dela upp dessa i mer tekniska tasks som ni kan arbeta utifrån.
 
-```
-serverless deploy
-```
+Ni behöver inte ha någon inloggning eller skapa konto
 
-After running deploy, you should see output similar to:
+User stories: https://github.com/orgs/JS22-backend-fordjupning/projects/2/views/1
 
-```
-Deploying "serverless-http-api" to stage "dev" (us-east-1)
+Affärslogik
 
-✔ Service deployed to stack serverless-http-api-dev (91s)
+Rum
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
-functions:
-  hello: serverless-http-api-dev-hello (1.6 kB)
-```
+    Det finns totalt 20 rum på hotellet som kan bokas dock behöver man inte ta hänsyn till datum (men man får).
+    Det finns tre typer av rum:
+        Enkelrum som tillåter enbart en 1 gäst
+        Dubbelrum som tillåter 2 gäster
+        Svit som tillåter 3 gäster
+    Enkelrum kostar 500 kr / natt
+    Dubbelrum kostar 1000 kr / natt
+    Svit kostar 1500 kr / natt
+    Det går att ha olika typer av rum i en bokning men antalet gäster måste stämma överens med ovan logik. Exempel: 3 personer behöver antingen boka en svit eller ett enkelrum och ett dubbelrum.
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [HTTP API (API Gateway V2) event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
+Tekniska krav
 
-### Invocation
+    Serverless framework
+    API Gateway
+    AWS Lambda
+    DynamoDB
+    Det finns felhantering ifall något går fel mot DynamoDB och ifall man försöker skicka in fel värden från body.
 
-After successful deployment, you can call the created application via HTTP:
+Betygskriterier
 
-```
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-```
+För Godkänt:
 
-Which should result in response similar to:
+    Uppfyller alla krav i kravspecifikationen.
+    Uppfyller alla tekniska krav.
 
-```json
-{ "message": "Go Serverless v4! Your function executed successfully!" }
-```
+Handledning
 
-### Local development
-
-The easiest way to develop and test your function is to use the `dev` command:
-
-```
-serverless dev
-```
-
-This will start a local emulator of AWS Lambda and tunnel your requests to and from AWS Lambda, allowing you to interact with your function as if it were running in the cloud.
-
-Now you can invoke the function as before, but this time the function will be executed locally. Now you can develop your function locally, invoke it, and see the results immediately without having to re-deploy.
-
-When you are done developing, don't forget to run `serverless deploy` to deploy the function to the cloud.
+Handledning erbjuds på tisdag, torsdag och fredag på Discord. Det kommmer finnas en handledningstråd man kan skriva upp sig på.
+Inlämning
+Inlämning sker på Azomo med en länk till ert Github repo samt en länk till en inspelning där ni går igenom ert projekt och hur ni har tänkt senast fredagen 19/9 kl 23:59. Observera att alla gruppen behöver lämna in projektet.
