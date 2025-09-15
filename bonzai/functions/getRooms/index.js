@@ -1,14 +1,33 @@
+import { ScanCommand } from "@aws-sdk/client-dynamodb";
 import { sendResponse } from "../responses/index.js";
 import { serverError } from "../responses/errors.js";
-import rooms from "../../data/rooms.json" assert { type: "json" };
-// import { client } from "../../services/db"; // Behövs först när ni använder DynamoDB
+import { client } from "../../services/db"; 
 
 export const handler = async (event) => {
   try {
+    const result = await client.send(
+      new ScanCommand({
+        TableName: "bonzai-table",
+        FilterExpression: "pk = :pk",
+        ExpressionAttributeValues: {
+          ":pk": { S: "ROOM" },
+        },
+      })
+    );
+
+    const rooms = result.Items.map((item) => ({
+        roomNo: Number(item.roomNo.N),
+        roomName: item.roomName.S,
+        roomType: item.roomType.S,
+        guestsAllowed: Number(item.guestsAllowed.N),
+        price: Number(item.price.N),
+        isAvailable: item.isAvailable.BOOL,
+        createdAt: item.createdAt.S,
+        modifiedAt: item.modifiedAt.S,
+    }));
     return sendResponse(200, { rooms });
   } catch (error) {
-    console.error("Error fetching rooms:", error);
-    return serverError();
+    console.error("Fel vid hämtning av rum:", error);
+    return serverError("Fel vid hämtning av rum");
   }
-};
-// Notera: Eftersom vi inte använder DynamoDB i denna funktion, är importen av 'client' kommenterad. Den kan tas bort om den inte behövs.git
+}
