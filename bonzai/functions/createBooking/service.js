@@ -1,4 +1,4 @@
-import { client } from "../../services/db";
+import { client } from "../../services/db.js";
 import { TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
 
 const TABLE = "bonzai-table";

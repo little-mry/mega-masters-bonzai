@@ -1,6 +1,6 @@
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import { sendResponse } from "../responses/index.js";
-import { serverError } from "../responses/error.js";
+import { serverError } from "../responses/errors.js";
 import { client } from "../../services/db.js";
 
 export const handler = async (event) => {
