@@ -24,23 +24,44 @@ package:
   individually: true
 
 functions:
-  hello:
+  getRooms:
     handler: functions/getRooms/index.handler
     events:
       - httpApi:
-          path: /
+          path: /rooms
           method: get
 
-resources:
-  Resources:
-    BookingsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Bookings
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: bookingId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: bookingId
-            KeyType: HASH
+  postRooms:
+    handler: functions/postRooms/index.handler
+    events:
+      - httpApi:
+          path: /rooms
+          method: post
+
+  createBooking:
+    handler: functions/createBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings
+          method: post
+
+  getBookings:
+    handler: functions/getBookings/index.handler
+    events:
+      - httpApi:
+          path: /bookings
+          method: get
+
+  updateBooking:
+    handler: functions/updateBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings/{id}
+          method: put
+
+  cancelBooking:
+    handler: functions/cancelBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings/{id}
+          method: delete
