@@ -9,3 +9,4 @@ export function sendResponse(statusCode, data) {
   };
   return response;
 }
+
