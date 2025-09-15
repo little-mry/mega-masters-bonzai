@@ -2,10 +2,5 @@ import { sendResponse } from "../responses";
 import { client } from "../../services/db";
 
 export const handler = async (event) => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "Go Serverless v4! Your function executed successfully!",
-    }),
-  };
+return sendResponse(200, {msg: "Success!!!"})
 };
