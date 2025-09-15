@@ -1,3 +1,23 @@
+ATT GÖRA:
+- ladda ner aws, nanoid till package-json // MARIA
+- Fixa yaml-funktionerna // LUCAS
+- POST ROOMS // MARIA
+- GET ROOMS // LUCAS
+- CREATE BOOKNING // ALICE
+
+- CANCEL BOOKING //
+- UPDATE BOOKING //
+- GET BOOKINGS (admin) //
+ 
+ATT TÄNKA PÅ:
+- Alla jobbar i egen branch //
+- Säg till innan du pushar till DEV
+- Kommenterarer i din kod för att förklara
+- skriv tydliga kommentarer när du commitar
+- använd try/catch i alla funktioner
+
+
+
 https://gist.github.com/zocom-christoffer-wallenberg/cd8ba002ea3f2bb2e4051667bf02cf5c
 
 https://www.figma.com/board/oiBqGBCBM8oDuV33yt4WxM/Mega-Masters-Bonzai?node-id=0-1&p=f&t=9SXzJQQelEG658CN-0

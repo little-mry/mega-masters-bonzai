@@ -1,19 +1,61 @@
-# "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: javascript24
-# "service" is the name of this project. This will also be added to your AWS resource names.
+org: bonzaipj
 service: bonzai
 
 provider:
   name: aws
   runtime: nodejs20.x
-  # Uncomment to easily set up a custom domain. Read the docs for more details:
-  # https://www.serverless.com/framework/docs/providers/aws/guide/domains
-  # domain: api.example.com
+  region: eu-north-1 # Stockholm
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:eu-north-1:*:table/bonzai-table
+
+build:
+  esbuild:
+    minify: true
+
+package:
+  individually: true
 
 functions:
-  hello:
-    handler: handler.hello
+  getRooms:
+    handler: functions/getRooms/index.handler
     events:
       - httpApi:
-          path: /
+          path: /rooms
           method: get
+
+  postRooms:
+    handler: functions/postRooms/index.handler
+    events:
+      - httpApi:
+          path: /rooms
+          method: post
+
+  getBookings:
+    handler: functions/getBookings/index.handler
+    events:
+      - httpApi:
+          path: /bookings
+          method: get
+
+  updateBooking:
+    handler: functions/updateBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings/{id}
+          method: put
+
+  cancelBooking:
+    handler: functions/cancelBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings/{id}
+          method: delete
+
