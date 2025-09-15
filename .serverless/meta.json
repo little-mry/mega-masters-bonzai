@@ -1,8 +1,23 @@
 {
   "unknown": {
     "versionFramework": "4.18.2",
-    "command": [],
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": true,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "command": [
+      "login"
+    ],
     "options": {},
+    "orgId": "23fbf075-0b5d-471f-8633-539286f196bf",
+    "orgName": "js2024",
+    "userId": "sqxvKbJ0N2V6r4tM8G",
+    "userName": "js2024",
     "serviceProviderAwsCfStackId": null,
     "serviceProviderAwsCfStackCreated": null,
     "serviceProviderAwsCfStackUpdated": null,
