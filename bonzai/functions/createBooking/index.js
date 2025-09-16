@@ -82,7 +82,7 @@ export const handler = async (event) => {
       const list = [];
       for (const r of allRooms) {
         if (list.length === count) break;
-        const available = r.isAvailable?.BOOL !== false; // default true
+        const available = r.isAvailable?.BOOL !== false; 
         const rType = String(r.roomType?.S || "").toLowerCase();
         if (!available || rType !== type) continue;
 
@@ -119,9 +119,7 @@ export const handler = async (event) => {
 
     try {
       const result = await tryBookRoom({
-        // ⬅️ ändrat från tryBookGroup till tryBookRoom
-        rooms: chosen, // dynamo-format från Query
-        nights,
+        rooms: chosen,
         bookingId,
         payload,
       });
