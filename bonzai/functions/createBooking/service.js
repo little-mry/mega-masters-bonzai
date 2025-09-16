@@ -72,6 +72,42 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   const pricePerNightSum = uniqueRooms.reduce((sum, r) => sum + Number(r.price.N), 0);
   const totalPrice = pricePerNightSum * nights.length;
 
+  //    Gruppera valda rum per roomType
+  const groups = new Map();
+  for (const r of rooms) {
+    const type = r.roomType.S; // "Single" | "Double" | "Suite"
+    if (!groups.has(type)) groups.set(type, []);
+    groups.get(type).push(r);
+  }
+
+  let lineIndex = 1;
+  for (const [type, list] of groups.entries()) {
+    const quantity = list.length;
+    const pricePerNightSumType = list.reduce((s, r) => s + Number(r.price.N), 0);
+    const lineTotal = pricePerNightSumType * nights.length;
+
+    // lista över roomNo som DynamoDB List (behåller ordning)
+    const reservedRooms = list.map((r) => ({ N: r.roomNo.N }));
+
+    const idx = String(lineIndex).padStart(3, "0");
+    TransactItems.push({
+      Put: {
+        TableName: TABLE,
+        Item: {
+          pk: { S: `BOOKING#${bookingId}` },
+          sk: { S: `LINE#${idx}` },
+          roomType: { S: type },
+          Quantity: { N: String(quantity) },
+          reservedRooms: { L: reservedRooms }, // ex [102,101]
+          pricePerNightSum: { N: String(pricePerNightSumType) },
+          lineTotal: { N: String(lineTotal) },
+        },
+        ConditionExpression: "attribute_not_exists(pk) AND attribute_not_exists(sk)",
+      },
+    });
+    lineIndex++;
+  }
+
   // 4) Spara en CONFIRMATION-post med bokningsinfo
   TransactItems.push({
     Put: {
