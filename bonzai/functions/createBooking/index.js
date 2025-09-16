@@ -48,7 +48,7 @@ export const handler = async (event) => {
       return badRequest("guests, checkIn, checkOut, email och name krävs.");
     }
 
-    const nights = enumerateNights(checkIn, checkOut);
+    const nights = enumerateNights(checkIn, checkOut); //Kan ja byta ut checkin, checkout mot nigths när jag skickar till trybookrooms
     if (nights.length === 0) {
       return badRequest("Ogiltigt datumintervall (minst 1 natt).");
     }
@@ -120,6 +120,7 @@ export const handler = async (event) => {
     try {
       const result = await tryBookRoom({
         rooms: chosen,
+        nights,
         bookingId,
         payload,
       });
