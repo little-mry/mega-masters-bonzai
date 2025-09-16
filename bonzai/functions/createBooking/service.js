@@ -19,14 +19,28 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   const now = new Date().toISOString();
   const TransactItems = [];
 
-  // 1) Se till att samma rum inte råkar väljas flera gånger
+  // --- Säkerhet & tydlig loggning ---
+  if (!Array.isArray(rooms)) {
+    console.error("tryBookRoom: 'rooms' är inte en array:", rooms);
+    throw new TypeError("Internal: rooms must be an array");
+  }
+  if (!Array.isArray(nights)) {
+    console.error("tryBookRoom: 'nights' är inte en array:", nights);
+    throw new TypeError("Internal: nights must be an array");
+  }
+
+  // 1) Deduplicera rum + validera rumsobjekt
   const seen = new Set();
   const uniqueRooms = [];
-  for (const r of rooms) {
-    const key = String(r.roomNo?.N || r.roomNo);
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniqueRooms.push(r);
+  for (const room of rooms) {
+    const roomNoStr = room?.roomNo?.N; // förväntat Dynamo-format
+    if (!roomNoStr) {
+      console.error("tryBookRoom: ogiltigt rumsobjekt (saknar roomNo.N):", room);
+      throw new TypeError("Internal: invalid room item (missing roomNo.N)");
+    }
+    if (!seen.has(roomNoStr)) {
+      seen.add(roomNoStr);
+      uniqueRooms.push(room);
     }
   }
 
