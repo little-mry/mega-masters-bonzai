@@ -1,14 +1,37 @@
-import { sendResponse } from "../responses";
+import { BatchGetItemCommand } from "@aws-sdk/client-dynamodb";
+import { client } from "../../services/db";
 
+const TABLE = "bonzai-table";
 const DATE_EXPR = /^\d{4}-\d{2}-\d{2}$/;
 
 export const isIsoDate = (s) => {
-    return typeof s === "string" && DATE_EXPR.test(s)
+  return typeof s === "string" && DATE_EXPR.test(s);
+};
 
-}
+export const fetchConfirmations = async (bookingIds) => {
+  if (!bookingIds.length) return [];
+  const chunks = [];
+  const all = [];
 
-export const parseLimit = (s, def = 50, max = 200) => {
-    const n = Number(s)
-    if (!Number.isFinite(n) || n <= 0) return def
-    return Math.min(Math.floor(n), max)
-}
+  for (let i = 0; i < bookingIds.length; i += 100) {
+    chunks.push(bookingIds.slice(i, i + 100));
+  }
+
+  for (const chunk of chunks) {
+    const each = await client.send(
+      new BatchGetItemCommand({
+        RequestItems: {
+          [TABLE]: {
+            Keys: chunk.map((id) => ({
+              pk: { S: `BOOKING#${id}` },
+              sk: { S: "CONFIRMATION" },
+            })),
+          },
+        },
+      })
+    );
+    const items = each.Responses?.[TABLE] ?? [];
+    all.push(...items);
+  }
+  return all;
+};
