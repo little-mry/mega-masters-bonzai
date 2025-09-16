@@ -1,18 +1,42 @@
 import { client } from "../../services/db.js";
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import { nanoid } from "nanoid";
-import { enumerateNights, tryBookGroup } from "./service.js";
+import { enumerateNights, tryBookRoom } from "./service.js";
 import { sendResponse } from "../responses/index.js";
 import { badRequest, serverError, conflict } from "../responses/errors.js";
 
 const TABLE = "bonzai-table";
+const ALLOWED_TYPES = ["single", "double", "suite"];
+
+// Kolla om ett specifikt rum är ledigt för alla nätter i intervallet
+async function isRoomFree(roomNoStr, nights) {
+  if (!nights.length) return true;
+  const from = nights[0];
+  const to = nights[nights.length - 1];
+
+  const { Items } = await client.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "pk = :pk AND sk BETWEEN :from AND :to",
+      ExpressionAttributeValues: {
+        ":pk": { S: `ROOM#${roomNoStr}` },
+        ":from": { S: `DATE#${from}` },
+        ":to": { S: `DATE#${to}` },
+      },
+      Limit: 1,
+    })
+  );
+
+  // Finns minst en rad i intervallet → rummet är upptaget någon natt
+  return !(Items && Items.length > 0);
+}
 
 export const handler = async (event) => {
   try {
     const body = JSON.parse(event.body ?? "{}");
     const { rooms, guests, checkIn, checkOut, email, note, name } = body;
 
-    // 1) Validation
+    // 1) Grundvalidering
     if (!Array.isArray(rooms) || rooms.length === 0) {
       return badRequest("rooms måste vara en icke-tom array (ex: ['single','suite']).");
     }
@@ -29,17 +53,17 @@ export const handler = async (event) => {
       return badRequest("Ogiltigt datumintervall (minst 1 natt).");
     }
 
-    const allowedTypes = ["single", "double", "suite"];
+    // 2) Summera önskade rumstyper
     const wanted = { single: 0, double: 0, suite: 0 };
     for (const t of rooms) {
       const k = String(t).toLowerCase();
-      if (!allowedTypes.includes(k)) {
+      if (!ALLOWED_TYPES.includes(k)) {
         return badRequest(`Ogiltig room type: ${t}`);
       }
       wanted[k]++;
     }
 
-    // 2) Hämta alla rum (pk = "ROOM")
+    // 3) Hämta alla rum (pk = "ROOM")
     const { Items } = await client.send(
       new QueryCommand({
         TableName: TABLE,
@@ -52,44 +76,51 @@ export const handler = async (event) => {
       return conflict("Inga rum finns seedade i tabellen.");
     }
 
-    // 3) Välj första lediga rum per typ
-    const pickRooms = (type, count) => {
+    // 4) Välj lediga rum per typ (kolla även datumlås)
+    const pickRooms = async (type, count) => {
       if (count <= 0) return [];
       const list = [];
       for (const r of allRooms) {
+        if (list.length === count) break;
         const available = r.isAvailable?.BOOL !== false; // default true
         const rType = String(r.roomType?.S || "").toLowerCase();
-        if (available && rType === type) {
-          list.push(r);
-          if (list.length === count) break;
-        }
+        if (!available || rType !== type) continue;
+
+        const roomNoStr = r.roomNo?.N;
+        if (!roomNoStr) continue;
+
+        const free = await isRoomFree(roomNoStr, nights);
+        if (free) list.push(r);
       }
       return list;
     };
 
     const chosen = [
-      ...pickRooms("single", wanted.single),
-      ...pickRooms("double", wanted.double),
-      ...pickRooms("suite",  wanted.suite),
+      ...(await pickRooms("single", wanted.single)),
+      ...(await pickRooms("double", wanted.double)),
+      ...(await pickRooms("suite", wanted.suite)),
     ];
 
     if (chosen.length !== rooms.length) {
       return conflict("Det finns inte tillräckligt många lediga rum av vald kombination.");
     }
 
-    // 4) Kapacitetskontroll för den valda kombon
+    // 5) Kapacitetskontroll
     const totalCapacity = chosen.reduce((sum, r) => sum + Number(r.guestsAllowed?.N ?? "0"), 0);
     if (totalCapacity < wantedGuests) {
-      return conflict(`Vald kombination rymmer totalt ${totalCapacity} gäster, men ${wantedGuests} efterfrågas.`);
+      return conflict(
+        `Vald kombination rymmer totalt ${totalCapacity} gäster, men ${wantedGuests} efterfrågas.`
+      );
     }
 
-    // 5) Boka gruppen atomiskt
+    // 6) Boka rum(en) atomiskt
     const bookingId = nanoid();
     const payload = { checkIn, checkOut, guests: wantedGuests, email, note, name };
 
     try {
-      const result = await tryBookGroup({
-        rooms: chosen,    // dynamo-format från Query
+      const result = await tryBookRoom({
+        // ⬅️ ändrat från tryBookGroup till tryBookRoom
+        rooms: chosen, // dynamo-format från Query
         nights,
         bookingId,
         payload,
@@ -97,7 +128,8 @@ export const handler = async (event) => {
       return sendResponse(201, result);
     } catch (err) {
       if (err?.name === "TransactionCanceledException") {
-        return conflict(`Minst ett rum är upptaget under intervallet ${checkIn}–${checkOut}.`);
+        console.error("TransactionCanceled:", err.CancellationReasons);
+        return conflict(`Tyvärr är det fullbokat för vald rumstyp under perioden ${checkIn}–${checkOut}.`);
       }
       console.error("booking error:", err);
       return serverError();
