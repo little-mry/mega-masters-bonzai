@@ -6,43 +6,114 @@ import {
   conflict,
 } from "../responses/errors";
 import { client } from "../../services/db";
-import { isIsoDate } from "./service";
+import { isIsoDate, fetchConfirmations } from "./service";
+import { enumerateNights } from "../createBooking/service.js";
+import { QueryCommand } from "@aws-sdk/client-dynamodb";
+
+const TABLE = "bonzai-table";
 
 export const handler = async (event) => {
   try {
     const query = event.queryStringParameters || {};
-
     const date = query.date?.trim();
     const from = query.from?.trim();
     const to = query.to?.trim();
 
     if (date && (from || to)) {
-      return badRequest("Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD");
+      return badRequest(
+        "Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD"
+      );
     }
     if (date && !isIsoDate(date)) {
       return badRequest("Ogiltigt date-format, använd YYYY-MM-DD");
     }
     if ((!from && to) || (from && !to)) {
-        return badRequest("Både from och to måste anges");
+      return badRequest("Både from och to måste anges");
     }
     if (from && (!isIsoDate(from) || !isIsoDate(to))) {
-        return badRequest("Ogiltigt from/to-format, använd YYYY-MM-DD");
+      return badRequest("Ogiltigt from/to-format, använd YYYY-MM-DD");
     }
     if (from && !(from < to)) {
-        return badRequest("'from' måste vara före 'to'");
+      return badRequest("'from' måste vara före 'to'");
     }
 
-    let mode = "ALL"
+    let mode = "ALL";
     if (date) {
-        mode = "DAY"
+      mode = "DAY";
     }
     if (from && to) {
-        mode = "INTERVAL"
+      mode = "INTERVAL";
     }
-    return sendResponse(200, {mode,  params: { date, from, to },
-      note: "Härnäst: anropa GSI1 (ALL) eller GSI2 (DAY/INTERVAL) enligt valt mode."} )
 
+    if (mode === "ALL") {
+      const bookings = await client.send(
+        new QueryCommand({
+          TableName: TABLE,
+          IndexName: "GSI1",
+          KeyConditionExpression: "GSI1_PK = :p",
+          ExpressionAttributeValues: {
+            ":p": { S: "BOOKING" },
+          },
+        })
+      );
+      const items = bookings.Items ?? [];
+      return sendResponse(200, { items, count: items.length });
+    } else if (mode === "DAY") {
+      const q = await client.send(
+        new QueryCommand({
+          TableName: TABLE,
+          IndexName: "GSI2",
+          KeyConditionExpression: "GSI2_PK = :p AND begins_with(GSI2_SK, :b)",
+          ExpressionAttributeValues: {
+            ":p": { S: `CAL#${date}` },
+            ":b": { S: "BOOKING#" },
+          },
+          ProjectionExpression: "GSI2_SK",
+        })
+      );
+
+      const ids = new Set();
+      for (const i of q.Items ?? []) {
+        const sk = i.GSI2_SK?.S || "";
+        const id = sk.split("#")[1];
+        if (id) ids.add(id);
+      }
+      const details = await fetchConfirmations([...ids]);
+      return sendResponse(200, { items: details, count: details.length, date });
+    } else {
+      //INTERVAL
+      const idSet = new Set();
+
+      for (const d of enumerateNights(from, to)) {
+        const q = await client.send(
+          new QueryCommand({
+            TableName: TABLE,
+            IndexName: "GSI2",
+            KeyConditionExpression: "GSI2_PK = :p AND begins_with(GSI2_SK, :b)",
+            ExpressionAttributeValues: {
+              ":p": { S: `CAL#${d}` },
+              ":b": { S: "BOOKING#" },
+            },
+            ProjectionExpression: "GSI2_SK",
+          })
+        );
+
+        for (const i of q.Items ?? []) {
+          const sk = i.GSI2_SK?.S || "";
+          const id = sk.split("#")[1];
+          if (id) idSet.add(id);
+        }
+      }
+      const details = await fetchConfirmations([...idSet]);
+      return sendResponse(200, {
+        items: details,
+        count: details.length,
+        interval: { from, to },
+      });
+    }
   } catch (error) {
-    return serverError()
+    console.error("getBookings error:", error);
+
+    return serverError();
   }
 };
