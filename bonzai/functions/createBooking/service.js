@@ -7,85 +7,33 @@ export const enumerateNights = (checkIn, checkOut) => {
   const out = [];
   const start = new Date(`${checkIn}T00:00:00.000Z`);
   const end = new Date(`${checkOut}T00:00:00.000Z`);
-  if (!(start < end)) return out; // ensure that checkin is before checkout
+  if (!(start < end)) return out;
 
   for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
     out.push(d.toISOString().slice(0, 10));
-  } //push new date to lock Ex: checkIn=2025-09-20, checkOut=2025-09-22 → nights: ["2025-09-20","2025-09-21"].
-
+  }
   return out;
 };
 
-export const tryBookRoom = async ({ room, nights, bookingId, payload }) => {
+export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   const now = new Date().toISOString();
   const TransactItems = [];
 
-  for (const date of nights) {
-    // every night in enumerateNights gets to be a date here
-    TransactItems.push({
-      Put: {
-        TableName: TABLE,
-        Item: {
-          pk: { S: `ROOM#${room.roomNo.N}` },
-          sk: { S: `DATE#${date}` },
-          roomNo: { N: room.roomNo.N },
-          date: { S: date },
-          bookingId: { S: bookingId },
-        },
-        ConditionExpression: "attribute_not_exists(pk)",
-      },
-    });
+  // 1) Se till att samma rum inte råkar väljas flera gånger
+  const seen = new Set();
+  const uniqueRooms = [];
+  for (const r of rooms) {
+    const key = String(r.roomNo?.N || r.roomNo);
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueRooms.push(r);
+    }
   }
 
-  TransactItems.push({
-    Put: {
-      TableName: TABLE,
-      Item: {
-        pk: { S: `BOOKING#${bookingId}` },
-        sk: { S: "CONFIRMATION" },
-        roomNo: { N: room.roomNo.N },
-        roomName: { S: room.roomName.S }, //vad betyder alla "N" och "S"-ändelser?
-        roomType: { S: room.roomType.S },
-        price: { N: room.price.N.toString() },
-        guestsAllowed: { N: room.guestsAllowed.N },
-        checkIn: { S: payload.checkIn },
-        checkOut: { S: payload.checkOut },
-        guests: { N: payload.guests.toString() },
-        email: { S: payload.email },
-        status: { S: "CONFIRMED" },
-        createdAt: { S: now },
-      },
-      ConditionExpression: "attribute_not_exists(pk)",
-    },
-  });
-
-  await client.send(
-    new TransactWriteItemsCommand({
-      TransactItems,
-      ReturnCancellationReasons: true, //vad är detta?
-    })
-  );
-
-  return {
-    bookingId,
-    roomNo: Number(room.roomNo.N),
-    roomName: room.roomName.S,
-    roomType: room.roomType.S,
-    checkIn: payload.checkIn,
-    checkOut: payload.checkOut,
-    guests: payload.guests,
-    email: payload.email,
-    status: "CONFIRMED",
-  };
-};
-
-export const tryBookGroup = async ({ rooms, nights, bookingId, payload }) => {
-  const now = new Date().toISOString();
-  const TransactItems = [];
-
-  // 1) Lås varje natt för varje valt rum (oförändrat)
-  for (const room of rooms) {
-    const roomNoStr = room.roomNo.N; // dynamo number som sträng
+  // 2) Skapa lås för varje rum + natt
+  // (förhindrar att samma rum bokas två gånger samma natt)
+  for (const room of uniqueRooms) {
+    const roomNoStr = room.roomNo.N;
     for (const date of nights) {
       TransactItems.push({
         Put: {
@@ -96,108 +44,72 @@ export const tryBookGroup = async ({ rooms, nights, bookingId, payload }) => {
             roomNo: { N: roomNoStr },
             date: { S: date },
             bookingId: { S: bookingId },
+            GSI2_PK: { S: `CAL#${date}` },
+            GSI2_SK: { S: `BOOKING#${bookingId}#ROOM#${roomNoStr}` },
           },
-          ConditionExpression: "attribute_not_exists(pk)",
+          ConditionExpression: "attribute_not_exists(pk) AND attribute_not_exists(sk)",
         },
       });
     }
   }
 
-  // 2) Totals (oförändrat)
-  const totalGuests = payload.guests;
-  const totalCapacity = rooms.reduce(
-    (sum, r) => sum + Number(r.guestsAllowed.N),
-    0
-  );
-  const pricePerNightSum = rooms.reduce(
-    (sum, r) => sum + Number(r.price.N),
-    0
-  );
+  // 3) Räkna ut totals för bokningen (pris, gäster, antal rum)
+  const totalGuests = Number(payload.guests);
+  const pricePerNightSum = uniqueRooms.reduce((sum, r) => sum + Number(r.price.N), 0);
   const totalPrice = pricePerNightSum * nights.length;
 
-  // 3) NYTT: LINE#-rader per rumstyp (Quantity, reservedRooms, lineTotal)
-  //    Gruppera valda rum per roomType
-  const groups = new Map();
-  for (const r of rooms) {
-    const type = r.roomType.S; // "Single" | "Double" | "Suite"
-    if (!groups.has(type)) groups.set(type, []);
-    groups.get(type).push(r);
-  }
-
-  let lineIndex = 1;
-  for (const [type, list] of groups.entries()) {
-    const quantity = list.length;
-    const pricePerNightSumType = list.reduce((s, r) => s + Number(r.price.N), 0);
-    const lineTotal = pricePerNightSumType * nights.length;
-
-    // lista över roomNo som DynamoDB List (behåller ordning)
-    const reservedRooms = list.map((r) => ({ N: r.roomNo.N }));
-
-    const idx = String(lineIndex).padStart(3, "0");
-    TransactItems.push({
-      Put: {
-        TableName: TABLE,
-        Item: {
-          pk: { S: `BOOKING#${bookingId}` },
-          sk: { S: `LINE#${idx}` },
-          roomType: { S: type },
-          Quantity: { N: String(quantity) },
-          reservedRooms: { L: reservedRooms }, // ex [102,101]
-          pricePerNightSum: { N: String(pricePerNightSumType) },
-          lineTotal: { N: String(lineTotal) },
-        },
-        ConditionExpression:
-          "attribute_not_exists(pk) AND attribute_not_exists(sk)",
-      },
-    });
-    lineIndex++;
-  }
-
-  // 4) CONFIRMATION – lagt till bookingId + totalAmount (samma som totalPrice)
+  // 4) Spara en CONFIRMATION-post med bokningsinfo
   TransactItems.push({
     Put: {
       TableName: TABLE,
       Item: {
         pk: { S: `BOOKING#${bookingId}` },
         sk: { S: "CONFIRMATION" },
-        bookingId: { S: bookingId },                 // <— nytt
+        bookingId: { S: bookingId },
         checkIn: { S: payload.checkIn },
         checkOut: { S: payload.checkOut },
         guests: { N: String(totalGuests) },
+        name: { S: payload.name },
         email: { S: payload.email },
+        roomsCount: { N: String(uniqueRooms.length) },
+        totalPrice: { N: String(totalPrice) },
         status: { S: "CONFIRMED" },
         createdAt: { S: now },
-        totalPrice: { N: String(totalPrice) },
-        totalAmount: { N: String(totalPrice) },       // <— nytt, alias för din kolumn
-        roomsCount: { N: String(rooms.length) },
-        totalCapacity: { N: String(totalCapacity) },
+        GSI1_PK: { S: "BOOKING" },
+        GSI1_SK: { S: `CREATED#${now}#${bookingId}` },
       },
       ConditionExpression: "attribute_not_exists(pk)",
     },
   });
 
-  // 5) Kör transaktionen (oförändrat)
-  await client.send(
-    new TransactWriteItemsCommand({
-      TransactItems,
-      ReturnCancellationReasons: true, // ger detaljer vid TransactionCanceledException
-    })
-  );
+  // 5) Kör transaktionen (antingen sparas allt, eller inget alls om det krockar)
+  try {
+    await client.send(
+      new TransactWriteItemsCommand({
+        TransactItems,
+      })
+    );
+  } catch (err) {
+    console.error("tryBookRoom error:", err);
+    throw err;
+  }
 
-  // 6) Svar (oförändrat, men du kan visa lines från UI via en separat fetch om du vill)
+  // 6) Returnera ett enkelt objekt tillbaka till handlern
   return {
     bookingId,
     checkIn: payload.checkIn,
     checkOut: payload.checkOut,
     guests: totalGuests,
     email: payload.email,
+    name: payload.name,
     status: "CONFIRMED",
-    rooms: rooms.map((r) => ({
+    roomsCount: uniqueRooms.length,
+    totalPrice,
+    rooms: uniqueRooms.map((r) => ({
       roomNo: Number(r.roomNo.N),
       roomName: r.roomName.S,
       roomType: r.roomType.S,
       pricePerNight: Number(r.price.N),
     })),
-    totalPrice,
   };
 };
