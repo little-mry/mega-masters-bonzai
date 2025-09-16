@@ -1,13 +1,15 @@
 ATT GÖRA:
-- ladda ner aws, nanoid till package-json // MARIA
-- Fixa yaml-funktionerna // LUCAS
-- POST ROOMS // MARIA
-- GET ROOMS // LUCAS
-- CREATE BOOKNING // ALICE
+- ladda ner aws, nanoid till package-json // MARIA ✅
+- Fixa yaml-funktionerna // LUCAS ✅
+- POST ROOMS // MARIA ✅
+- GET ROOMS // LUCAS ✅
 
+- CREATE BOOKNING // ALICE
 - CANCEL BOOKING //
 - UPDATE BOOKING //
 - GET BOOKINGS (admin) //
+ - Man ska kunna få alla bokningar(tom body) eller kunna speca bokningar för ett visst datum i body(date start - date end)
+ - Behöver eventuellt GSI
  
 ATT TÄNKA PÅ:
 - Alla jobbar i egen branch //
