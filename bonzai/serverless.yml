@@ -14,7 +14,6 @@ provider:
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:DeleteItem
-        - dynamodb:UpdateItem
         - dynamodb:TransactWriteItems
         - dynamodb:UpdateItem
         - dynamodb:DescribeTable
