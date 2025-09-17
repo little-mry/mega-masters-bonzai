@@ -86,7 +86,6 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
     const pricePerNightSumType = list.reduce((s, r) => s + Number(r.price.N), 0);
     const lineTotal = pricePerNightSumType * nights.length;
 
-    // lista över roomNo som DynamoDB List (behåller ordning)
     const reservedRooms = list.map((r) => ({ N: r.roomNo.N }));
 
     const idx = String(lineIndex).padStart(3, "0");
@@ -98,7 +97,7 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
           sk: { S: `LINE#${idx}` },
           roomType: { S: type },
           Quantity: { N: String(quantity) },
-          reservedRooms: { L: reservedRooms }, // ex [102,101]
+          reservedRooms: { L: reservedRooms },
           pricePerNightSum: { N: String(pricePerNightSumType) },
           lineTotal: { N: String(lineTotal) },
         },
