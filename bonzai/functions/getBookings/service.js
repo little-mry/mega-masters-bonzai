@@ -4,10 +4,12 @@ import { client } from "../../services/db";
 const TABLE = "bonzai-table";
 const DATE_EXPR = /^\d{4}-\d{2}-\d{2}$/;
 
+// Kollar om en sträng är i formatet YYYY-MM-DD
 export const isIsoDate = (s) => {
   return typeof s === "string" && DATE_EXPR.test(s);
 };
 
+// Hämtar CONFIRMATION-poster för flera bookingId
 export const fetchConfirmations = async (bookingIds) => {
   if (!bookingIds.length) return [];
   const chunks = [];
@@ -17,6 +19,7 @@ export const fetchConfirmations = async (bookingIds) => {
     chunks.push(bookingIds.slice(i, i + 100));
   }
 
+  // Hämtar bokningsbekräftelser för varje grupp av bookingId
   for (const chunk of chunks) {
     const each = await client.send(
       new BatchGetItemCommand({
