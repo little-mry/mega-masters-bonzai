@@ -124,20 +124,24 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   // Kör transaktionen
   await client.send(new TransactWriteItemsCommand({ TransactItems }));
 
-  // Unmarshall för att returnera mer läsbart objekt
-  const confirmationLine = unmarshall(confirmationItem);
-  const roomTypeLines = lineItems.map(unmarshall);
+const confirmation = {
+  bookingId,
+  status: "CONFIRMED",
+  createdAt: now,
+  name: payload.name,
+  email: payload.email,
+  checkIn: payload.checkIn,
+  checkOut: payload.checkOut,
+  nights: nights.length,
+  guests: totalGuests,
+  rooms: uniqueRooms.map((r) => ({
+    roomName: r.roomName.S,
+    roomType: r.roomType.S,
+    roomNo: Number(r.roomNo.N),
+  })),
+  totalPrice: `${totalPrice} SEK`, 
+};
 
-  // Retur till handler
-  return {
-    ...confirmationLine,
-    roomTypeLines,
-    bookingId,
-    rooms: uniqueRooms.map((r) => ({
-      roomNo: Number(r.roomNo.N),
-      roomName: r.roomName.S,
-      roomType: r.roomType.S,
-      pricePerNight: Number(r.price.N),
-    })),
-  };
+
+return confirmation;
 };

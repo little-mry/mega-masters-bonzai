@@ -258,18 +258,18 @@ export async function replaceBookingGroup({ bookingId, patch }) {
 
   return {
     bookingId,
+    status: "CONFIRMED",
+    name: newName,
+    email: newEmail,
     checkIn: newCheckIn,
     checkOut: newCheckOut,
+    nights: nights.length,
     guests: newGuests,
-    email: newEmail,
-    name: newName,
-    status: "CONFIRMED",
     rooms: rooms.map((r) => ({
       roomNo: Number(r.roomNo),
       roomName: r.roomName,
       roomType: r.roomType,
     })),
-    nights: nights.length,
     totalPrice,
   };
 }
