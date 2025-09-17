@@ -20,14 +20,13 @@ export const handler = async (event) => {
     const body = JSON.parse(event.body || "{}");
     const { name, email, note, guests, rooms, checkIn, checkOut } = body;
 
-    // Flagga: ändras rum/datum/antal gäster?
     const bookingChange =
       guests !== undefined ||
       rooms !== undefined ||
       checkIn !== undefined ||
       checkOut !== undefined;
 
-    // A) Enkel uppdatering (bara name/email/note)
+    // Enkel uppdatering (bara name/email/note)
     if (!bookingChange) {
       const setParts = [];
       const names = {};
@@ -64,14 +63,18 @@ export const handler = async (event) => {
               sk: { S: "CONFIRMATION" },
             },
             ConditionExpression:
-              "attribute_exists(pk) AND attribute_exists(sk)",
+              "attribute_exists(pk) AND attribute_exists(sk) AND (#status <> :cancelled)",
             UpdateExpression: "SET " + setParts.join(", "),
-            ExpressionAttributeNames: names,
-            ExpressionAttributeValues: values,
+            ExpressionAttributeNames: { ...names, "#status": "status" },
+            ExpressionAttributeValues: {
+              ...values,
+              ":cancelled": { S: "CANCELLED" },
+            },
             ReturnValues: "ALL_NEW",
           })
         );
-        
+
+        //snyggar till JSON-svaret
         const a = out.Attributes ? unmarshall(out.Attributes) : null;
         return sendResponse(200, {
           updated: true,
@@ -87,7 +90,7 @@ export const handler = async (event) => {
       }
     }
 
-    // B) Struktur-ändring (rum/datum/antal gäster)
+    // Struktur-ändring (rum/datum/antal gäster)
     if (guests !== undefined) {
       const g = parseInt(guests, 10);
       if (!Number.isInteger(g) || g <= 0)
@@ -95,7 +98,7 @@ export const handler = async (event) => {
     }
     if (rooms !== undefined && (!Array.isArray(rooms) || rooms.length === 0)) {
       return badRequest(
-        "rooms måste vara en icke-tom array av room types (single/double/suite)."
+        "En lista med rumstyper måste anges (single/double/suite)."
       );
     }
 
@@ -109,10 +112,12 @@ export const handler = async (event) => {
       if (err?.name === "NotFound") {
         return notFound("Bokningen finns inte.");
       }
+      if (err?.name === "Conflict")
+        return conflict(err.message || "Kan inte uppdatera avbokad bokning.");
       if (err?.name === "TransactionCanceledException") {
         return conflict("De önskade rummen/datum är inte tillgängliga.");
       }
-      console.error("updateBooking(struct) error:", err);
+      console.error("updateBooking error:", err);
       return serverError();
     }
   } catch (err) {

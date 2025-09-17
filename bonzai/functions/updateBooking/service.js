@@ -65,11 +65,18 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     e.name = "NotFound";
     throw e;
   }
+
+  if (confirmation.status === "CANCELLED") {
+    const e = new Error("Bokningen är redan avbokad.");
+    e.name = "Conflict";
+    throw e;
+  }
+
   const oldLines = items.filter(
     (it) => typeof it.sk === "string" && it.sk.startsWith("LINE#")
   );
 
-  // Nya värden (fallback till gamla om ej skickade)
+  // Nya värden till bokningen
   const newGuests =
     patch.guests !== undefined
       ? parseInt(patch.guests, 10)
@@ -100,15 +107,14 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   }
 
   const newEmail = patch.email ?? confirmation.email;
-  const newName =
-    patch.name ?? confirmation.name ?? confirmation.guestName ?? "";
+  const newName = patch.name ?? confirmation.name ?? "";
   const newNote = patch.note ?? confirmation.note ?? "";
 
-  // Välj nya rum
+  // Väljer nya rum
   const allRoomsPlain = await getAllRooms();
   const rooms = await chooseRoomsByTypes(allRoomsPlain, roomTypes, nights);
 
-  // Transaktion A: lås nya nätter
+  // Transaktion A: Låser nya nätter
   const txA = [];
   for (const r of rooms) {
     const roomNo = Number(r.roomNo);
@@ -125,10 +131,9 @@ export async function replaceBookingGroup({ bookingId, patch }) {
             GSI2_PK: `CAL#${date}`,
             GSI2_SK: `BOOKING#${bookingId}#ROOM#${roomNo}`,
           }),
-          // pk+sk måste saknas, eller så är itemet redan vårt (idempotent)
           ConditionExpression:
             "(attribute_not_exists(pk) AND attribute_not_exists(sk)) OR bookingId = :bid",
-          ExpressionAttributeValues: marshall({ ":bid": bookingId }),
+          ExpressionAttributeValues: { ":bid": { S: bookingId } },
         },
       });
     }
@@ -140,7 +145,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     })
   );
 
-  // 5) Transaktion B: rensa gammalt + skriv nytt
+  //Transaktion B: rensa bort gammal bokningsrader och rumslås + skriver nya
   const txB = [];
 
   // Ta bort gamla lås
@@ -148,11 +153,10 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     confirmation.checkIn,
     confirmation.checkOut
   );
-  const oldRoomNos = [];
-  for (const ln of oldLines) {
-    const arr = Array.isArray(ln.reservedRooms) ? ln.reservedRooms : [];
-    for (const n of arr) oldRoomNos.push(Number(n));
-  }
+  const oldRoomNos = Array.isArray(confirmation.reservedRooms)
+    ? confirmation.reservedRooms.map(Number)
+    : [];
+
   for (const rn of oldRoomNos) {
     for (const d of oldNights) {
       txB.push({
@@ -174,7 +178,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     });
   }
 
-  // Nya LINE# per typ
+  // Nya LINE# per rumstyp
   const byType = new Map();
   for (const r of rooms) {
     const t = String(r.roomType || "");
@@ -183,7 +187,6 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   }
 
   let idx = 1;
-  // versionsstämpel för att undvika krock mellan gamla och nya LINE# i samma transaktion
   const ver = Date.now();
   const pricePerNightSum = rooms.reduce((s, r) => s + Number(r.price ?? 0), 0);
   const totalCapacity = rooms.reduce(
@@ -220,7 +223,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     idx++;
   }
 
-  // Ny CONFIRMATION (Put ersätter befintlig – vi behöver inte Delete)
+  //Ny confirmation-rad
   const now = new Date().toISOString();
   txB.push({
     Put: {
@@ -233,9 +236,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
         checkOut: newCheckOut,
         guests: newGuests,
         email: newEmail,
-        // lagra båda fälten för kompatibilitet
         name: newName,
-        guestName: newName,
         note: String(newNote ?? ""),
         status: "CONFIRMED",
         createdAt: confirmation.createdAt ?? now,
@@ -255,7 +256,6 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     })
   );
 
-  // 6) Svar
   return {
     bookingId,
     checkIn: newCheckIn,
@@ -268,7 +268,6 @@ export async function replaceBookingGroup({ bookingId, patch }) {
       roomNo: Number(r.roomNo),
       roomName: r.roomName,
       roomType: r.roomType,
-      pricePerNight: Number(r.price ?? 0),
     })),
     nights: nights.length,
     totalPrice,
