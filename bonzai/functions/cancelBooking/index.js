@@ -15,17 +15,18 @@ export const handler = async (event) => {
     const items = await getBookingById(bookingId);
 
     // Om ingen bokning hittades
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
       return notFound("Ingen bokning hittades.");
     }
 
-    const confirmation = Items.find((i) => i.sk.S === "CONFIRMATION");
+    const confirmation = items.find((i) => i.sk === "CONFIRMATION");
     if (!confirmation) {
       return notFound("Bokningens confirmationpost saknas.");
     }
 
     // Kontrollera att avbokning sker minst 48h innan check-in
-    const checkIn = new Date(confirmation.checkIn.S);
+
+    const checkIn = new Date(confirmation.checkIn);
     const now = new Date();
     const diffHours = (checkIn - now) / (1000 * 60 * 60);
     if (diffHours < 48) {
@@ -33,8 +34,8 @@ export const handler = async (event) => {
     }
 
     // Hämta alla rums-lås (DATE#) och alla LINE#-rader som hör till bokningen
-    const roomLocks = Items.filter((i) => i.sk.S.startsWith("DATE#"));
-    const lineItems = Items.filter((i) => i.sk.S.startsWith("LINE#"));
+    const roomLocks = items.filter((i) => i.sk.startsWith("DATE#"));
+    const lineItems = items.filter((i) => i.sk.startsWith("LINE#"));
 
     // Här bygger vi en lista med alla transaktioner som ska köras
     const TransactItems = [];
@@ -61,8 +62,8 @@ export const handler = async (event) => {
         Delete: {
           TableName: TABLE,
           Key: {
-            pk: lock.pk,
-            sk: lock.sk,
+            pk: { S: String(lock.pk) },
+            sk: { S: String(lock.sk) },
           },
         },
       });
@@ -73,8 +74,8 @@ export const handler = async (event) => {
         Delete: {
           TableName: TABLE,
           Key: {
-            pk: line.pk,
-            sk: line.sk,
+            pk: { S: String(line.pk) },
+            sk: { S: String(line.sk) },
           },
         },
       });

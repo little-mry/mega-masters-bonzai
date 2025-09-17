@@ -7,7 +7,7 @@ import { client } from "../services/db.js";
 
 const TABLE = "bonzai-table";
 
-export const getBookingById= async (bookingId) => {
+export const getBookingById = async (bookingId) => {
   const res = await client.send(
     new QueryCommand({
       TableName: TABLE,
@@ -18,5 +18,5 @@ export const getBookingById= async (bookingId) => {
     })
   );
 
-  return (res.Items || []).map(unmarshall);
-}
+  return (res.Items || []).map((it) => unmarshall(it));
+};
