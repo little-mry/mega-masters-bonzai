@@ -1,3 +1,6 @@
+// Här har vi lagt enumerateNights separat eftersom vi använder den på flera ställen i projektet.
+// Funktionen räknar ut alla datum mellan checkIn och checkOut (exklusive utcheckningsdagen).
+
 export const enumerateNights = (checkIn, checkOut) => {
   const out = [];
   const start = new Date(`${checkIn}T00:00:00.000Z`);

@@ -4,6 +4,7 @@ import { client } from "../services/db.js";
 
 const TABLE = "bonzai-table";
 
+// En helper som hämtar alla rum från databasen.
 export const getAllRooms = async () => {
   const res = await client.send(
     new QueryCommand({

@@ -16,7 +16,6 @@ export const handler = async (event) => {
       })
     );
 
-    // Konvertera alla items till vanliga JS-objekt
     const rooms = result.Items.map((item) => unmarshall(item));
 
     return sendResponse(200, { rooms });
