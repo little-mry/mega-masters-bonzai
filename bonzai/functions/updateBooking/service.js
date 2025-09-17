@@ -1,44 +1,11 @@
 import { client } from "../../services/db.js";
 import { QueryCommand, TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { enumerateNights } from "../../helpers/helpers.js";
+import { getBookingById } from "../../helpers/bookings.js";
+import { getAllRooms } from "../../helpers/rooms.js";
 
 const TABLE = "bonzai-table";
-
-// Enkel datumshelper: [checkIn, checkOut) -> ["YYYY-MM-DD", ...]
-export const enumerateNights = (checkIn, checkOut) => {
-  const out = [];
-  const start = new Date(`${checkIn}T00:00:00.000Z`);
-  const end = new Date(`${checkOut}T00:00:00.000Z`);
-  if (!(start < end)) return out;
-  for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
-    out.push(d.toISOString().slice(0, 10));
-  }
-  return out;
-};
-
-// Läs en bokning 
-async function getBookingPlain(bookingId) {
-  const res = await client.send(
-    new QueryCommand({
-      TableName: TABLE,
-      KeyConditionExpression: "pk = :pk",
-      ExpressionAttributeValues: { ":pk": { S: `BOOKING#${bookingId}` } },
-    })
-  );
-  return (res.Items || []).map(unmarshall);
-}
-
-// Hämta alla rum 
-async function getAllRoomsPlain() {
-  const res = await client.send(
-    new QueryCommand({
-      TableName: TABLE,
-      KeyConditionExpression: "pk = :pk",
-      ExpressionAttributeValues: { ":pk": { S: "ROOM" } },
-    })
-  );
-  return (res.Items || []).map(unmarshall);
-}
 
 // Välj faktiska rum utifrån efterfrågade typer (t.ex. ["single","suite"])
 function chooseRoomsByTypes(allRooms, roomTypes) {
@@ -86,7 +53,7 @@ function chooseRoomsByTypes(allRooms, roomTypes) {
 //Byter datum/rum/antal för en bokning.
 export async function replaceBookingGroup({ bookingId, patch }) {
 
-  const items = await getBookingPlain(bookingId);
+  const items = await getBookingById(bookingId);
   const confirmation = items.find((it) => it.sk === "CONFIRMATION");
   if (!confirmation) {
     const e = new Error("Booking not found");
@@ -128,7 +95,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   const newNote = patch.note ?? confirmation.note ?? "";
 
   // Välj nya rum
-  const allRoomsPlain = await getAllRoomsPlain();
+  const allRoomsPlain = await getAllRooms();
   const rooms = chooseRoomsByTypes(allRoomsPlain, roomTypes);
 
   // Transaktion A: lås nya nätter

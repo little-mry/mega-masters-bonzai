@@ -85,6 +85,7 @@ export const handler = async (event) => {
     if (rooms !== undefined && (!Array.isArray(rooms) || rooms.length === 0)) {
       return badRequest("rooms måste vara en icke-tom array av room types (single/double/suite).");
     }
+    
 
     try {
       const result = await replaceBookingGroup({
