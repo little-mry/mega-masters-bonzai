@@ -1,6 +1,6 @@
 import { client } from "../../services/db.js";
 import { TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 import { enumerateNights } from "../../helpers/helpers.js";
 import { getBookingById } from "../../helpers/bookings.js";
 import { getAllRooms } from "../../helpers/rooms.js";
@@ -56,7 +56,7 @@ async function chooseRoomsByTypes(allRooms, roomTypes, nights) {
   return chosen;
 }
 
-//Byter datum/rum/antal för en bokning.
+// Byter datum/rum/antal för en bokning.
 export async function replaceBookingGroup({ bookingId, patch }) {
   const items = await getBookingById(bookingId);
   const confirmation = items.find((it) => it.sk === "CONFIRMATION");
@@ -125,7 +125,9 @@ export async function replaceBookingGroup({ bookingId, patch }) {
             GSI2_PK: `CAL#${date}`,
             GSI2_SK: `BOOKING#${bookingId}#ROOM#${roomNo}`,
           }),
-          ConditionExpression: "attribute_not_exists(pk) OR bookingId = :bid",
+          // pk+sk måste saknas, eller så är itemet redan vårt (idempotent)
+          ConditionExpression:
+            "(attribute_not_exists(pk) AND attribute_not_exists(sk)) OR bookingId = :bid",
           ExpressionAttributeValues: marshall({ ":bid": bookingId }),
         },
       });
@@ -162,7 +164,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     }
   }
 
-  // Ta bort gamla LINE# + CONFIRMATION
+  // Ta bort gamla LINE#
   for (const ln of oldLines) {
     txB.push({
       Delete: {
@@ -171,14 +173,8 @@ export async function replaceBookingGroup({ bookingId, patch }) {
       },
     });
   }
-  txB.push({
-    Delete: {
-      TableName: TABLE,
-      Key: marshall({ pk: `BOOKING#${bookingId}`, sk: "CONFIRMATION" }),
-    },
-  });
 
-  //Nya LINE# per typ
+  // Nya LINE# per typ
   const byType = new Map();
   for (const r of rooms) {
     const t = String(r.roomType || "");
@@ -187,6 +183,8 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   }
 
   let idx = 1;
+  // versionsstämpel för att undvika krock mellan gamla och nya LINE# i samma transaktion
+  const ver = Date.now();
   const pricePerNightSum = rooms.reduce((s, r) => s + Number(r.price ?? 0), 0);
   const totalCapacity = rooms.reduce(
     (s, r) => s + Number(r.guestsAllowed ?? 0),
@@ -196,7 +194,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   const reservedRoomsAll = rooms.map((r) => Number(r.roomNo));
 
   for (const [type, list] of byType.entries()) {
-    const lineKey = `LINE#${String(idx).padStart(3, "0")}`;
+    const lineKey = `LINE#${ver}#${String(idx).padStart(3, "0")}`;
     const quantity = list.length;
     const sumType = list.reduce((s, r) => s + Number(r.price ?? 0), 0);
     const lineTotal = sumType * nights.length;
@@ -222,7 +220,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     idx++;
   }
 
-  // Ny CONFIRMATION
+  // Ny CONFIRMATION (Put ersätter befintlig – vi behöver inte Delete)
   const now = new Date().toISOString();
   txB.push({
     Put: {
@@ -235,13 +233,14 @@ export async function replaceBookingGroup({ bookingId, patch }) {
         checkOut: newCheckOut,
         guests: newGuests,
         email: newEmail,
+        // lagra båda fälten för kompatibilitet
         name: newName,
+        guestName: newName,
         note: String(newNote ?? ""),
         status: "CONFIRMED",
         createdAt: confirmation.createdAt ?? now,
         modifiedAt: now,
         totalPrice,
-        totalAmount: totalPrice,
         roomsCount: rooms.length,
         totalCapacity,
         reservedRooms: reservedRoomsAll,

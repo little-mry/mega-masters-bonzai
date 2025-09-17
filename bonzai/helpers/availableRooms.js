@@ -1,4 +1,5 @@
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
+import { client } from "../services/db";
 
 const TABLE = "bonzai-table";
 
