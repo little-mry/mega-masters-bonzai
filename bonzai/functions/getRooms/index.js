@@ -1,4 +1,5 @@
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { sendResponse } from "../responses/index.js";
 import { serverError } from "../responses/errors.js";
 import { client } from "../../services/db.js";
@@ -15,16 +16,8 @@ export const handler = async (event) => {
       })
     );
 
-    const rooms = result.Items.map((item) => ({
-      roomNo: Number(item.roomNo.N),
-      roomName: item.roomName.S,
-      roomType: item.roomType.S,
-      guestsAllowed: Number(item.guestsAllowed.N),
-      price: Number(item.price.N),
-      isAvailable: item.isAvailable.BOOL,
-      createdAt: item.createdAt.S,
-      modifiedAt: item.modifiedAt.S,
-    }));
+    // Konvertera alla items till vanliga JS-objekt
+    const rooms = result.Items.map((item) => unmarshall(item));
 
     return sendResponse(200, { rooms });
   } catch (error) {
