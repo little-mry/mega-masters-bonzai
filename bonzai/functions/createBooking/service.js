@@ -1,5 +1,6 @@
 import { client } from "../../services/db.js";
 import { TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 
@@ -17,6 +18,7 @@ export const enumerateNights = (checkIn, checkOut) => {
 
 export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   const now = new Date().toISOString();
+
   const TransactItems = [];
 
   // --- Säkerhet & tydlig loggning ---
@@ -35,7 +37,10 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   for (const room of rooms) {
     const roomNoStr = room?.roomNo?.N; // förväntat Dynamo-format
     if (!roomNoStr) {
-      console.error("tryBookRoom: ogiltigt rumsobjekt (saknar roomNo.N):", room);
+      console.error(
+        "tryBookRoom: ogiltigt rumsobjekt (saknar roomNo.N):",
+        room
+      );
       throw new TypeError("Internal: invalid room item (missing roomNo.N)");
     }
     if (!seen.has(roomNoStr)) {
@@ -61,7 +66,8 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
             GSI2_PK: { S: `CAL#${date}` },
             GSI2_SK: { S: `BOOKING#${bookingId}#ROOM#${roomNoStr}` },
           },
-          ConditionExpression: "attribute_not_exists(pk) AND attribute_not_exists(sk)",
+          ConditionExpression:
+            "attribute_not_exists(pk) AND attribute_not_exists(sk)",
         },
       });
     }
@@ -69,7 +75,10 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
 
   // 3) Räkna ut totals för bokningen (pris, gäster, antal rum)
   const totalGuests = Number(payload.guests);
-  const pricePerNightSum = uniqueRooms.reduce((sum, r) => sum + Number(r.price.N), 0);
+  const pricePerNightSum = uniqueRooms.reduce(
+    (sum, r) => sum + Number(r.price.N),
+    0
+  );
   const totalPrice = pricePerNightSum * nights.length;
 
   //    Gruppera valda rum per roomType
@@ -83,7 +92,10 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   let lineIndex = 1;
   for (const [type, list] of groups.entries()) {
     const quantity = list.length;
-    const pricePerNightSumType = list.reduce((s, r) => s + Number(r.price.N), 0);
+    const pricePerNightSumType = list.reduce(
+      (s, r) => s + Number(r.price.N),
+      0
+    );
     const lineTotal = pricePerNightSumType * nights.length;
 
     const reservedRooms = list.map((r) => ({ N: r.roomNo.N }));
@@ -101,37 +113,43 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
           pricePerNightSum: { N: String(pricePerNightSumType) },
           lineTotal: { N: String(lineTotal) },
         },
-        ConditionExpression: "attribute_not_exists(pk) AND attribute_not_exists(sk)",
+        ConditionExpression:
+          "attribute_not_exists(pk) AND attribute_not_exists(sk)",
       },
     });
+    lineItems.push(item); //sparar item för att kunna unmarshall senare
     lineIndex++;
   }
+  const reservedRoomsAll = uniqueRooms.map((r) => ({ N: r.roomNo.N }));
 
   // 4) Spara en CONFIRMATION-post med bokningsinfo
+
+  const confirmationItem = {
+    pk: { S: `BOOKING#${bookingId}` },
+    sk: { S: "CONFIRMATION" },
+    bookingId: { S: bookingId },
+    checkIn: { S: payload.checkIn },
+    checkOut: { S: payload.checkOut },
+    guests: { N: String(totalGuests) },
+    name: { S: payload.name },
+    email: { S: payload.email },
+    reservedRooms: { L: reservedRoomsAll },
+    roomsCount: { N: String(uniqueRooms.length) },
+    totalPrice: { N: String(totalPrice) },
+    status: { S: "CONFIRMED" },
+    createdAt: { S: now },
+    GSI1_PK: { S: "BOOKING" },
+    GSI1_SK: { S: `CREATED#${now}#${bookingId}` },
+  };
+
   TransactItems.push({
     Put: {
       TableName: TABLE,
-      Item: {
-        pk: { S: `BOOKING#${bookingId}` },
-        sk: { S: "CONFIRMATION" },
-        bookingId: { S: bookingId },
-        checkIn: { S: payload.checkIn },
-        checkOut: { S: payload.checkOut },
-        guests: { N: String(totalGuests) },
-        name: { S: payload.name },
-        email: { S: payload.email },
-        roomsCount: { N: String(uniqueRooms.length) },
-        totalPrice: { N: String(totalPrice) },
-        status: { S: "CONFIRMED" },
-        createdAt: { S: now },
-        GSI1_PK: { S: "BOOKING" },
-        GSI1_SK: { S: `CREATED#${now}#${bookingId}` },
-      },
+      Item: confirmationItem,
       ConditionExpression: "attribute_not_exists(pk)",
     },
   });
 
-  // 5) Kör transaktionen (antingen sparas allt, eller inget alls om det krockar)
   try {
     await client.send(
       new TransactWriteItemsCommand({
@@ -142,18 +160,14 @@ export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
     console.error("tryBookRoom error:", err);
     throw err;
   }
+  const confirmationLine = unmarshall(confirmationItem)
+  const roomTypeLines = lineItems.map(unmarshall)
 
   // 6) Returnera ett enkelt objekt tillbaka till handlern
   return {
+    ...confirmationLine,
+    roomTypeLines,
     bookingId,
-    checkIn: payload.checkIn,
-    checkOut: payload.checkOut,
-    guests: totalGuests,
-    email: payload.email,
-    name: payload.name,
-    status: "CONFIRMED",
-    roomsCount: uniqueRooms.length,
-    totalPrice,
     rooms: uniqueRooms.map((r) => ({
       roomNo: Number(r.roomNo.N),
       roomName: r.roomName.S,

@@ -9,6 +9,7 @@ import { client } from "../../services/db";
 import { isIsoDate, fetchConfirmations } from "./service";
 import { enumerateNights } from "../createBooking/service.js";
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 
@@ -56,7 +57,8 @@ export const handler = async (event) => {
           },
         })
       );
-      const items = bookings.Items ?? [];
+
+      const items = (bookings.Items ?? []).map((i) => unmarshall(i));
       return sendResponse(200, { items, count: items.length });
     } else if (mode === "DAY") {
       const q = await client.send(
@@ -79,7 +81,8 @@ export const handler = async (event) => {
         if (id) ids.add(id);
       }
       const details = await fetchConfirmations([...ids]);
-      return sendResponse(200, { items: details, count: details.length, date });
+      const items = details.map((i) => unmarshall(i));
+      return sendResponse(200, { items, count: items.length, date });
     } else {
       //INTERVAL
       const idSet = new Set();
@@ -105,9 +108,10 @@ export const handler = async (event) => {
         }
       }
       const details = await fetchConfirmations([...idSet]);
+      const items = details.map((i) => unmarshall(i));
       return sendResponse(200, {
-        items: details,
-        count: details.length,
+        items,
+        count: items.length,
         interval: { from, to },
       });
     }
