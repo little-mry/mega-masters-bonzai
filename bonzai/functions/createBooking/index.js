@@ -9,7 +9,9 @@ import { badRequest, serverError, conflict } from "../responses/errors.js";
 const TABLE = "bonzai-table";
 const ALLOWED_TYPES = ["single", "double", "suite"];
 
-// Kolla om ett specifikt rum är ledigt för alla nätter i intervallet
+// Kontrollerar om ett rum är ledigt för alla nätter i listan
+// Genomför en Query med sk mellan from-to, om minst en rad returneras är rummet upptaget någon natt
+// Returnerar true om rummet är ledigt alla nätter, annars false
 async function isRoomFree(roomNoStr, nights) {
   if (!nights.length) return true;
   const from = nights[0];
@@ -24,11 +26,11 @@ async function isRoomFree(roomNoStr, nights) {
         ":from": { S: `DATE#${from}` },
         ":to": { S: `DATE#${to}` },
       },
-      Limit: 1,
+      Limit: 1, // Räcker med att hitta en rad för att veta att rummet är upptaget
     })
   );
 
-  // Finns minst en rad i intervallet → rummet är upptaget någon natt
+  // Om inga items returnerades är rummet ledigt alla nätter
   return !(Items && Items.length > 0);
 }
 
@@ -37,7 +39,7 @@ export const handler = async (event) => {
     const body = JSON.parse(event.body ?? "{}");
     const { rooms, guests, checkIn, checkOut, email, note, name } = body;
 
-    // 1) Grundvalidering
+    // 1) Validerar input
     if (!Array.isArray(rooms) || rooms.length === 0) {
       return badRequest("rooms måste vara en icke-tom array (ex: ['single','suite']).");
     }
@@ -54,7 +56,7 @@ export const handler = async (event) => {
       return badRequest("Ogiltigt datumintervall (minst 1 natt).");
     }
 
-    // 2) Summera önskade rumstyper
+    // 2) Räknar ut antal rum per typ
     const wanted = { single: 0, double: 0, suite: 0 };
     for (const t of rooms) {
       const k = String(t).toLowerCase();
@@ -64,7 +66,7 @@ export const handler = async (event) => {
       wanted[k]++;
     }
 
-    // 3) Hämta alla rum (pk = "ROOM")
+    // 3) Hämtar alla rum från databasen
     const { Items } = await client.send(
       new QueryCommand({
         TableName: TABLE,
@@ -77,7 +79,10 @@ export const handler = async (event) => {
       return conflict("Inga rum finns seedade i tabellen.");
     }
 
-    // 4) Välj lediga rum per typ (kolla även datumlås)
+    // 4) Väljer rum som är lediga
+    // Går igenom alla rum i tabellen, för varje rum av rätt typ som är ledigt under hela perioden väljs det
+    // Fortsätter tills vi har valt tillräckligt många rum eller gått igenom alla rum
+    // Om vi inte hittar tillräckligt många lediga rum av rätt typ misslyckas bokningen
     const pickRooms = async (type, count) => {
       if (count <= 0) return [];
       const list = [];
@@ -106,7 +111,7 @@ export const handler = async (event) => {
       return conflict("Det finns inte tillräckligt många lediga rum av vald kombination.");
     }
 
-    // 5) Kapacitetskontroll
+    // 5) Kollar att vald kombination rymmer alla gäster
     const totalCapacity = chosen.reduce((sum, r) => sum + Number(r.guestsAllowed?.N ?? "0"), 0);
     if (totalCapacity < wantedGuests) {
       return conflict(
@@ -114,7 +119,9 @@ export const handler = async (event) => {
       );
     }
 
-    // 6) Boka rum(en) atomiskt
+    // 6) Skapar bokningen och låser rummen
+    // Skapar en unik boknings-id
+    // Anropar tryBookRoom() som skapar alla rader i en transaktion (CONFIRMATION, LINE#, ROOM#DATE#)
     const bookingId = nanoid();
     const payload = { checkIn, checkOut, guests: wantedGuests, email, note, name };
 
