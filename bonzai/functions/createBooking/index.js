@@ -3,36 +3,13 @@ import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import { nanoid } from "nanoid";
 import { enumerateNights } from "../../helpers/helpers.js";
 import { tryBookRoom } from "./service.js";
+import { isRoomFree } from "../../helpers/availableRooms.js";
 import { sendResponse } from "../responses/index.js";
 import { badRequest, serverError, conflict } from "../responses/errors.js";
 
 const TABLE = "bonzai-table";
 const ALLOWED_TYPES = ["single", "double", "suite"];
 
-// Kontrollerar om ett rum är ledigt för alla nätter i listan
-// Genomför en Query med sk mellan from-to, om minst en rad returneras är rummet upptaget någon natt
-// Returnerar true om rummet är ledigt alla nätter, annars false
-async function isRoomFree(roomNoStr, nights) {
-  if (!nights.length) return true;
-  const from = nights[0];
-  const to = nights[nights.length - 1];
-
-  const { Items } = await client.send(
-    new QueryCommand({
-      TableName: TABLE,
-      KeyConditionExpression: "pk = :pk AND sk BETWEEN :from AND :to",
-      ExpressionAttributeValues: {
-        ":pk": { S: `ROOM#${roomNoStr}` },
-        ":from": { S: `DATE#${from}` },
-        ":to": { S: `DATE#${to}` },
-      },
-      Limit: 1, // Räcker med att hitta en rad för att veta att rummet är upptaget
-    })
-  );
-
-  // Om inga items returnerades är rummet ledigt alla nätter
-  return !(Items && Items.length > 0);
-}
 
 export const handler = async (event) => {
   try {

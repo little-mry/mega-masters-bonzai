@@ -1,14 +1,15 @@
 import { client } from "../../services/db.js";
-import { QueryCommand, TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
+import { TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { enumerateNights } from "../../helpers/helpers.js";
 import { getBookingById } from "../../helpers/bookings.js";
 import { getAllRooms } from "../../helpers/rooms.js";
+import { isRoomFree } from "../../helpers/availableRooms.js";
 
 const TABLE = "bonzai-table";
 
 // Välj faktiska rum utifrån efterfrågade typer (t.ex. ["single","suite"])
-function chooseRoomsByTypes(allRooms, roomTypes) {
+async function chooseRoomsByTypes(allRooms, roomTypes, nights) {
   const allowed = ["single", "double", "suite"];
   const wanted = { single: 0, double: 0, suite: 0 };
 
@@ -22,13 +23,16 @@ function chooseRoomsByTypes(allRooms, roomTypes) {
     wanted[key]++;
   }
 
-  const pick = (type, count) => {
+  const pick = async (type, count) => {
     if (count <= 0) return [];
     const out = [];
     for (const r of allRooms) {
-      const avail = r.isAvailable !== false; 
+      const avail = r.isAvailable !== false;
       const rt = String(r.roomType || "").toLowerCase();
-      if (avail && rt === type) {
+      if (!avail || rt !== type) continue;
+
+      const roomNo = Number(r.roomNo);
+      if (await isRoomFree(roomNo, nights)) {
         out.push(r);
         if (out.length === count) break;
       }
@@ -37,14 +41,16 @@ function chooseRoomsByTypes(allRooms, roomTypes) {
   };
 
   const chosen = [
-    ...pick("single", wanted.single),
-    ...pick("double", wanted.double),
-    ...pick("suite", wanted.suite),
+    ...(await pick("single", wanted.single)),
+    ...(await pick("double", wanted.double)),
+    ...(await pick("suite", wanted.suite)),
   ];
 
   if (chosen.length !== roomTypes.length) {
-    const e = new Error("Det finns inte tillräckligt många lediga rum av vald kombination.");
-    e.name = "TransactionCanceledException"; 
+    const e = new Error(
+      "Det finns inte tillräckligt många lediga rum av vald kombination."
+    );
+    e.name = "TransactionCanceledException";
     throw e;
   }
   return chosen;
@@ -52,7 +58,6 @@ function chooseRoomsByTypes(allRooms, roomTypes) {
 
 //Byter datum/rum/antal för en bokning.
 export async function replaceBookingGroup({ bookingId, patch }) {
-
   const items = await getBookingById(bookingId);
   const confirmation = items.find((it) => it.sk === "CONFIRMATION");
   if (!confirmation) {
@@ -60,11 +65,15 @@ export async function replaceBookingGroup({ bookingId, patch }) {
     e.name = "NotFound";
     throw e;
   }
-  const oldLines = items.filter((it) => typeof it.sk === "string" && it.sk.startsWith("LINE#"));
+  const oldLines = items.filter(
+    (it) => typeof it.sk === "string" && it.sk.startsWith("LINE#")
+  );
 
   // Nya värden (fallback till gamla om ej skickade)
   const newGuests =
-    patch.guests !== undefined ? parseInt(patch.guests, 10) : parseInt(confirmation.guests ?? 0, 10);
+    patch.guests !== undefined
+      ? parseInt(patch.guests, 10)
+      : parseInt(confirmation.guests ?? 0, 10);
   if (!Number.isInteger(newGuests) || newGuests <= 0) {
     const e = new Error("guests måste vara ett positivt heltal.");
     e.name = "BadRequest";
@@ -91,12 +100,13 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   }
 
   const newEmail = patch.email ?? confirmation.email;
-  const newName = patch.name ?? confirmation.guestName ?? "";
+  const newName =
+    patch.name ?? confirmation.name ?? confirmation.guestName ?? "";
   const newNote = patch.note ?? confirmation.note ?? "";
 
   // Välj nya rum
   const allRoomsPlain = await getAllRooms();
-  const rooms = chooseRoomsByTypes(allRoomsPlain, roomTypes);
+  const rooms = await chooseRoomsByTypes(allRoomsPlain, roomTypes, nights);
 
   // Transaktion A: lås nya nätter
   const txA = [];
@@ -112,8 +122,11 @@ export async function replaceBookingGroup({ bookingId, patch }) {
             roomNo,
             date,
             bookingId,
+            GSI2_PK: `CAL#${date}`,
+            GSI2_SK: `BOOKING#${bookingId}#ROOM#${roomNo}`,
           }),
-          ConditionExpression: "attribute_not_exists(pk)",
+          ConditionExpression: "attribute_not_exists(pk) OR bookingId = :bid",
+          ExpressionAttributeValues: marshall({ ":bid": bookingId }),
         },
       });
     }
@@ -129,7 +142,10 @@ export async function replaceBookingGroup({ bookingId, patch }) {
   const txB = [];
 
   // Ta bort gamla lås
-  const oldNights = enumerateNights(confirmation.checkIn, confirmation.checkOut);
+  const oldNights = enumerateNights(
+    confirmation.checkIn,
+    confirmation.checkOut
+  );
   const oldRoomNos = [];
   for (const ln of oldLines) {
     const arr = Array.isArray(ln.reservedRooms) ? ln.reservedRooms : [];
@@ -172,8 +188,12 @@ export async function replaceBookingGroup({ bookingId, patch }) {
 
   let idx = 1;
   const pricePerNightSum = rooms.reduce((s, r) => s + Number(r.price ?? 0), 0);
-  const totalCapacity = rooms.reduce((s, r) => s + Number(r.guestsAllowed ?? 0), 0);
+  const totalCapacity = rooms.reduce(
+    (s, r) => s + Number(r.guestsAllowed ?? 0),
+    0
+  );
   const totalPrice = pricePerNightSum * nights.length;
+  const reservedRoomsAll = rooms.map((r) => Number(r.roomNo));
 
   for (const [type, list] of byType.entries()) {
     const lineKey = `LINE#${String(idx).padStart(3, "0")}`;
@@ -190,11 +210,12 @@ export async function replaceBookingGroup({ bookingId, patch }) {
           sk: lineKey,
           roomType: type,
           Quantity: quantity,
-          reservedRooms,     
+          reservedRooms,
           pricePerNightSum: sumType,
           lineTotal,
         }),
-        ConditionExpression: "attribute_not_exists(pk) AND attribute_not_exists(sk)",
+        ConditionExpression:
+          "attribute_not_exists(pk) AND attribute_not_exists(sk)",
       },
     });
 
@@ -214,7 +235,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
         checkOut: newCheckOut,
         guests: newGuests,
         email: newEmail,
-        guestName: newName,
+        name: newName,
         note: String(newNote ?? ""),
         status: "CONFIRMED",
         createdAt: confirmation.createdAt ?? now,
@@ -223,6 +244,7 @@ export async function replaceBookingGroup({ bookingId, patch }) {
         totalAmount: totalPrice,
         roomsCount: rooms.length,
         totalCapacity,
+        reservedRooms: reservedRoomsAll,
       }),
     },
   });

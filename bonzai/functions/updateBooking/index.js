@@ -1,8 +1,14 @@
 import { UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db.js";
 import { sendResponse } from "../responses/index.js";
-import { badRequest, serverError, notFound, conflict } from "../responses/errors.js";
+import {
+  badRequest,
+  serverError,
+  notFound,
+  conflict,
+} from "../responses/errors.js";
 import { replaceBookingGroup } from "./service.js";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 
@@ -16,7 +22,10 @@ export const handler = async (event) => {
 
     // Flagga: ändras rum/datum/antal gäster?
     const bookingChange =
-      guests !== undefined || rooms !== undefined || checkIn !== undefined || checkOut !== undefined;
+      guests !== undefined ||
+      rooms !== undefined ||
+      checkIn !== undefined ||
+      checkOut !== undefined;
 
     // A) Enkel uppdatering (bara name/email/note)
     if (!bookingChange) {
@@ -25,8 +34,8 @@ export const handler = async (event) => {
       const values = {};
 
       if (typeof name === "string" && name.trim()) {
-        setParts.push("#guestName = :name");
-        names["#guestName"] = "guestName";
+        setParts.push("#name = :name");
+        names["#name"] = "name";
         values[":name"] = { S: name.trim() };
       }
       if (typeof email === "string" && email.trim()) {
@@ -41,32 +50,33 @@ export const handler = async (event) => {
       }
 
       if (setParts.length === 0) {
-        return badRequest("Inget att uppdatera. Skicka name, email eller note.");
+        return badRequest(
+          "Inget att uppdatera. Skicka name, email eller note."
+        );
       }
 
       try {
         const out = await client.send(
           new UpdateItemCommand({
             TableName: TABLE,
-            Key: { pk: { S: `BOOKING#${bookingId}` }, sk: { S: "CONFIRMATION" } },
-            ConditionExpression: "attribute_exists(pk) AND attribute_exists(sk)",
+            Key: {
+              pk: { S: `BOOKING#${bookingId}` },
+              sk: { S: "CONFIRMATION" },
+            },
+            ConditionExpression:
+              "attribute_exists(pk) AND attribute_exists(sk)",
             UpdateExpression: "SET " + setParts.join(", "),
             ExpressionAttributeNames: names,
             ExpressionAttributeValues: values,
             ReturnValues: "ALL_NEW",
           })
         );
-
-        const a = out.Attributes || {};
+        
+        const a = out.Attributes ? unmarshall(out.Attributes) : null;
         return sendResponse(200, {
-          bookingId,
-          guestName: a.guestName?.S,
-          email: a.email?.S,
-          note: a.note?.S,
-          status: a.status?.S,
-          checkIn: a.checkIn?.S,
-          checkOut: a.checkOut?.S,
           updated: true,
+          bookingId,
+          ...a,
         });
       } catch (err) {
         if (err?.name === "ConditionalCheckFailedException") {
@@ -80,12 +90,14 @@ export const handler = async (event) => {
     // B) Struktur-ändring (rum/datum/antal gäster)
     if (guests !== undefined) {
       const g = parseInt(guests, 10);
-      if (!Number.isInteger(g) || g <= 0) return badRequest("guests måste vara ett positivt heltal.");
+      if (!Number.isInteger(g) || g <= 0)
+        return badRequest("guests måste vara ett positivt heltal.");
     }
     if (rooms !== undefined && (!Array.isArray(rooms) || rooms.length === 0)) {
-      return badRequest("rooms måste vara en icke-tom array av room types (single/double/suite).");
+      return badRequest(
+        "rooms måste vara en icke-tom array av room types (single/double/suite)."
+      );
     }
-    
 
     try {
       const result = await replaceBookingGroup({
