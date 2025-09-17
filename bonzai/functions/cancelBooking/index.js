@@ -3,6 +3,7 @@ import { client } from "../../services/db.js";
 import { sendResponse } from "../responses/index.js";
 import { notFound, conflict, serverError } from "../responses/errors.js";
 import { getBookingById } from "../../helpers/bookings.js";
+import { enumerateNights } from "../../helpers/helpers.js";
 const TABLE = "bonzai-table";
 
 export const handler = async (event) => {
@@ -23,9 +24,12 @@ export const handler = async (event) => {
     if (!confirmation) {
       return notFound("Bokningens confirmationpost saknas.");
     }
+    // Kontrollerar att bokningen inte redan är avbokad
+    if (confirmation.status === "CANCELLED") {
+      return conflict("Denna bokning är redan avbokad");
+    }
 
     // Kontrollera att avbokning sker minst 48h innan check-in
-
     const checkIn = new Date(confirmation.checkIn);
     const now = new Date();
     const diffHours = (checkIn - now) / (1000 * 60 * 60);
@@ -33,8 +37,18 @@ export const handler = async (event) => {
       return conflict("Avbokning måste ske minst 48h innan incheckning.");
     }
 
-    // Hämta alla rums-lås (DATE#) och alla LINE#-rader som hör till bokningen
-    const roomLocks = items.filter((i) => i.sk.startsWith("DATE#"));
+    // Hitta all reververade rum + datum för dessa, för at senare kunna radera rum-lås
+    const nights = enumerateNights(confirmation.checkIn, confirmation.checkOut);
+    const reservedRooms = Array.isArray(confirmation.reservedRooms)
+      ? confirmation.reservedRooms.map(Number)
+      : [];
+
+    if (reservedRooms.length === 0)
+      return conflict(
+        "Bokning saknar reserverade rum och kan inte avbokas säkert"
+      );
+
+    // Hämta alla LINE#-rader som hör till bokningen
     const lineItems = items.filter((i) => i.sk.startsWith("LINE#"));
 
     // Här bygger vi en lista med alla transaktioner som ska köras
@@ -54,20 +68,27 @@ export const handler = async (event) => {
           ":cancelled": { S: "CANCELLED" },
           ":now": { S: new Date().toISOString() },
         },
+        ConditionExpression:
+          "attribute_not_exists(#status) OR #status <> :cancelled",
       },
     });
+
     // Ta bort alla roomLocks (låsta datum för rummen)
-    for (const lock of roomLocks) {
-      TransactItems.push({
-        Delete: {
-          TableName: TABLE,
-          Key: {
-            pk: { S: String(lock.pk) },
-            sk: { S: String(lock.sk) },
+    for (const roomNo of reservedRooms) {
+      const roomStr = String(roomNo);
+      for (const date of nights) {
+        TransactItems.push({
+          Delete: {
+            TableName: TABLE,
+            Key: {
+              pk: { S: `ROOM#${roomStr}` },
+              sk: { S: `DATE#${date}` },
+            },
           },
-        },
-      });
+        });
+      }
     }
+
     // Ta bort alla LINE#-poster (radposter för rumstyper)
     for (const line of lineItems) {
       TransactItems.push({
@@ -91,7 +112,8 @@ export const handler = async (event) => {
     // Skicka svar om att avbokningen lyckades
     return sendResponse(200, {
       msg: `Booking ${bookingId} avbokad.`,
-      cancelledRooms: roomLocks.length,
+      cancelledRooms: reservedRooms.length,
+      removedLockRows: reservedRooms.length * nights.length,
       removedLines: lineItems.length,
     });
   } catch (err) {

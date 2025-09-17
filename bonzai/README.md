@@ -30,10 +30,8 @@ ATT TÄNKA PÅ:
 - använd try/catch i alla funktioner
 
 
-
-https://gist.github.com/zocom-christoffer-wallenberg/cd8ba002ea3f2bb2e4051667bf02cf5c
-
-https://www.figma.com/board/oiBqGBCBM8oDuV33yt4WxM/Mega-Masters-Bonzai?node-id=0-1&p=f&t=9SXzJQQelEG658CN-0
+Vår GitHub: https://github.com/little-mry/mega-masters-bonzai
+Figma med datamodell: https://www.figma.com/board/oiBqGBCBM8oDuV33yt4WxM/Mega-Masters-Bonzai?node-id=0-1&p=f&t=9SXzJQQelEG658CN-0
 
 Gruppexamination: Bonz.ai
 Bakgrund
