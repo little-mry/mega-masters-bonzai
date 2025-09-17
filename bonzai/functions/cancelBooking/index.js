@@ -1,8 +1,11 @@
-import { QueryCommand, TransactWriteItemsCommand } from "@aws-sdk/client-dynamodb";
+import {
+  QueryCommand,
+  TransactWriteItemsCommand,
+} from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db.js";
 import { sendResponse } from "../responses/index.js";
 import { notFound, conflict, serverError } from "../responses/errors.js";
-
+import { getBookingById } from "../../helpers/bookings.js";
 const TABLE = "bonzai-table";
 
 export const handler = async (event) => {
@@ -11,16 +14,10 @@ export const handler = async (event) => {
     if (!bookingId) return notFound("Ingen bookingId angiven.");
 
     // 1) Hämta alla items för bokningen
-    const { Items } = await client.send(
-      new QueryCommand({
-        TableName: TABLE,
-        KeyConditionExpression: "pk = :pk",
-        ExpressionAttributeValues: { ":pk": { S: `BOOKING#${bookingId}` } },
-      })
-    );
+    const items = await getBookingById(bookingId);
 
-    if (!Items || Items.length === 0) {
-      return notFound("Bokningen hittades inte.");
+    if (items.length === 0) {
+      return notFound("Ingen bokning hittades.");
     }
 
     const confirmation = Items.find((i) => i.sk.S === "CONFIRMATION");

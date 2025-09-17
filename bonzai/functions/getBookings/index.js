@@ -7,7 +7,7 @@ import {
 } from "../responses/errors";
 import { client } from "../../services/db";
 import { isIsoDate, fetchConfirmations } from "./service";
-import { enumerateNights } from "../createBooking/service.js";
+import { enumerateNights } from "../../helpers/helpers";
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
 

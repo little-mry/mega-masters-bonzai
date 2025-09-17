@@ -1,7 +1,8 @@
 import { client } from "../../services/db.js";
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
 import { nanoid } from "nanoid";
-import { enumerateNights, tryBookRoom } from "./service.js";
+import { enumerateNights } from "../../helpers/helpers.js";
+import { tryBookRoom } from "./service.js";
 import { sendResponse } from "../responses/index.js";
 import { badRequest, serverError, conflict } from "../responses/errors.js";
 

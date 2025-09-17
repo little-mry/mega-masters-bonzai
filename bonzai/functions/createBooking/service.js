@@ -4,18 +4,6 @@ import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 
-export const enumerateNights = (checkIn, checkOut) => {
-  const out = [];
-  const start = new Date(`${checkIn}T00:00:00.000Z`);
-  const end = new Date(`${checkOut}T00:00:00.000Z`);
-  if (!(start < end)) return out;
-
-  for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
-    out.push(d.toISOString().slice(0, 10));
-  }
-  return out;
-};
-
 export const tryBookRoom = async ({ rooms, nights, bookingId, payload }) => {
   const now = new Date().toISOString();
 
