@@ -1,5 +1,5 @@
+// Här samlar vi färdiga felsvar (HTTP-koder) så vi kan återanvända dom i våra funktioner
 import { sendResponse } from "./index.js"
-
 
 export const badRequest = (msg = "Bad request") => 
   sendResponse(400, { error: msg });

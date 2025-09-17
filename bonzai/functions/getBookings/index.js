@@ -1,10 +1,5 @@
 import { sendResponse } from "../responses";
-import {
-  badRequest,
-  serverError,
-  notFound,
-  conflict,
-} from "../responses/errors";
+import { badRequest, serverError, notFound, conflict } from "../responses/errors";
 import { client } from "../../services/db";
 import { isIsoDate, fetchConfirmations } from "./service";
 import { enumerateNights } from "../../helpers/helpers";
@@ -21,9 +16,7 @@ export const handler = async (event) => {
     const to = query.to?.trim();
 
     if (date && (from || to)) {
-      return badRequest(
-        "Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD"
-      );
+      return badRequest("Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD");
     }
     if (date && !isIsoDate(date)) {
       return badRequest("Ogiltigt date-format, använd YYYY-MM-DD");
