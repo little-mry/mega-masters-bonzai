@@ -48,7 +48,7 @@ export const handler = async (event) => {
       return badRequest("guests, checkIn, checkOut, email och name krävs.");
     }
 
-    const nights = enumerateNights(checkIn, checkOut); //Kan ja byta ut checkin, checkout mot nigths när jag skickar till trybookrooms
+    const nights = enumerateNights(checkIn, checkOut); 
     if (nights.length === 0) {
       return badRequest("Ogiltigt datumintervall (minst 1 natt).");
     }
@@ -82,7 +82,7 @@ export const handler = async (event) => {
       const list = [];
       for (const r of allRooms) {
         if (list.length === count) break;
-        const available = r.isAvailable?.BOOL !== false; 
+        const available = r.isAvailable?.BOOL !== false;
         const rType = String(r.roomType?.S || "").toLowerCase();
         if (!available || rType !== type) continue;
 
