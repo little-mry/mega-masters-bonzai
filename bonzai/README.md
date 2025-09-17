@@ -1,15 +1,26 @@
 ATT GÖRA:
-- ladda ner aws, nanoid till package-json // MARIA ✅
-- Fixa yaml-funktionerna // LUCAS ✅
-- POST ROOMS // MARIA ✅
-- GET ROOMS // LUCAS ✅
+- GET ROOMS 
+    - lägg till unmarshall // LUCAS
 
-- CREATE BOOKNING // ALICE
-- CANCEL BOOKING //
-- UPDATE BOOKING //
-- GET BOOKINGS (admin) //
- - Man ska kunna få alla bokningar(tom body) eller kunna speca bokningar för ett visst datum i body(date start - date end)
- - Behöver eventuellt GSI
+- CREATE BOOKNING 
+    - lägg till rum på CONFIRMATION //MARIA
+
+- UPDATE BOOKING // ALICE
+
+- GET BOOKINGS (admin) 
+    - lägg till unmarshall // MARIA
+
+ ----------
+- Kommentera kod
+- Dubbelkolla kravspec
+- Testa alla endpoints 
+    - Överboka rum
+    - Kolla kapacitetskontroll
+    - Skriv fel i body/sökväg
+    - Spara i request-group i POSTMAN
+
+- Spela in video
+    
  
 ATT TÄNKA PÅ:
 - Alla jobbar i egen branch //
