@@ -4,6 +4,7 @@ import { sendResponse } from "../responses/index.js";
 import { serverError } from "../responses/errors.js";
 import { client } from "../../services/db.js";
 
+// Hämtar alla rum från databasen och returnerar som svar.
 export const handler = async (event) => {
   try {
     const result = await client.send(
