@@ -1,5 +1,6 @@
 import { BatchGetItemCommand } from "@aws-sdk/client-dynamodb";
 import { client } from "../../services/db";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 const DATE_EXPR = /^\d{4}-\d{2}-\d{2}$/;
@@ -38,3 +39,55 @@ export const fetchConfirmations = async (bookingIds) => {
   }
   return all;
 };
+
+function toRoomNumbers(roomsRaw) {
+  const arr = Array.isArray(roomsRaw) ? roomsRaw : [];
+  const out = [];
+
+  for (const r of arr) {
+    if (typeof r === "number" && Number.isFinite(r)) { out.push(r); continue; }
+
+    if (typeof r === "string") {
+      const n = Number(r);
+      if (Number.isFinite(n)) { out.push(n); continue; }
+    }
+
+    if (r && typeof r === "object" && typeof r.N === "string") {
+      const n = Number(r.N);
+      if (Number.isFinite(n)) { out.push(n); continue; }
+    }
+
+    const rn =
+      typeof r?.roomNo === "number" ? r.roomNo
+      : typeof r?.roomNo === "string" ? Number(r.roomNo)
+      : typeof r?.roomNo?.N === "string" ? Number(r.roomNo.N)
+      : undefined;
+    if (Number.isFinite(rn)) out.push(rn);
+  }
+
+  return out;
+}
+
+export function formatBooking(i) {
+  const x = unmarshall(i);
+  delete x.pk;
+  delete x.sk;
+  delete x.GSI1_PK;
+  delete x.GSI1_SK;
+  delete x.GSI2_PK;
+  delete x.GSI2_SK;
+
+  const roomsSrc = x.rooms ?? x.reservedRooms ?? [];
+
+  return {
+    bookingId: x.bookingId,
+    name: x.name,
+    email: x.email,
+    guests: x.guests,
+    checkIn: x.checkIn,
+    checkOut: x.checkOut,
+    rooms: toRoomNumbers(roomsSrc),
+    note: x.note || null,
+    createdAt: x.createdAt,
+  };
+}

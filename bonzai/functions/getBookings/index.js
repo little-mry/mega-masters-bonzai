@@ -1,10 +1,15 @@
 import { sendResponse } from "../responses";
-import { badRequest, serverError, notFound, conflict } from "../responses/errors";
+import {
+  badRequest,
+  serverError,
+  notFound,
+  conflict,
+} from "../responses/errors";
 import { client } from "../../services/db";
 import { isIsoDate, fetchConfirmations } from "./service";
 import { enumerateNights } from "../../helpers/helpers";
+import { formatBooking } from "./service";
 import { QueryCommand } from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const TABLE = "bonzai-table";
 
@@ -16,7 +21,9 @@ export const handler = async (event) => {
     const to = query.to?.trim();
     // Kollar att man angett rätt format och inte blandar date och from/to
     if (date && (from || to)) {
-      return badRequest("Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD");
+      return badRequest(
+        "Ange antingen ?date=YYYY-MM-DD ELLER ?from=YYYY-MM-DD&to=YYYY-MM-DD"
+      );
     }
     if (date && !isIsoDate(date)) {
       return badRequest("Ogiltigt date-format, använd YYYY-MM-DD");
@@ -41,7 +48,6 @@ export const handler = async (event) => {
     }
 
     if (mode === "ALL") {
-      // Hämtar alla bokningar
       const bookings = await client.send(
         new QueryCommand({
           TableName: TABLE,
@@ -50,13 +56,18 @@ export const handler = async (event) => {
           ExpressionAttributeValues: {
             ":p": { S: "BOOKING" },
           },
+          ProjectionExpression: "bookingId", // <-- finns i GSI1 Include
         })
       );
 
-      const items = (bookings.Items ?? []).map((i) => unmarshall(i));
+      const ids = (bookings.Items ?? [])
+        .map((i) => i.bookingId?.S)
+        .filter(Boolean);
+
+      const details = await fetchConfirmations(ids);
+      const items = details.map(formatBooking);
       return sendResponse(200, { items, count: items.length });
     } else if (mode === "DAY") {
-      // Hämtar bokningar för ett specifikt datum
       const q = await client.send(
         new QueryCommand({
           TableName: TABLE,
@@ -66,19 +77,16 @@ export const handler = async (event) => {
             ":p": { S: `CAL#${date}` },
             ":b": { S: "BOOKING#" },
           },
-          ProjectionExpression: "GSI2_SK",
+          ProjectionExpression: "bookingId",
         })
       );
-      // Plockar ut bookingId för alla bokningar den dagen
-      const ids = new Set();
-      for (const i of q.Items ?? []) {
-        const sk = i.GSI2_SK?.S || "";
-        const id = sk.split("#")[1];
-        if (id) ids.add(id);
-      }
-      // Hämtar detaljer om bokningarna
-      const details = await fetchConfirmations([...ids]);
-      const items = details.map((i) => unmarshall(i));
+
+      const ids = Array.from(
+        new Set((q.Items ?? []).map((i) => i.bookingId?.S).filter(Boolean))
+      );
+
+      const details = await fetchConfirmations(ids);
+      const items = details.map(formatBooking);
       return sendResponse(200, { items, count: items.length, date });
     } else {
       // Hämtar bokningar för ett intervall av dagar
@@ -94,19 +102,18 @@ export const handler = async (event) => {
               ":p": { S: `CAL#${d}` },
               ":b": { S: "BOOKING#" },
             },
-            ProjectionExpression: "GSI2_SK",
+            ProjectionExpression: "bookingId",
           })
         );
-        // Samlar in bookingId för varje dag
+
         for (const i of q.Items ?? []) {
-          const sk = i.GSI2_SK?.S || "";
-          const id = sk.split("#")[1];
+          const id = i.bookingId?.S;
           if (id) idSet.add(id);
         }
       }
-      // Hämtar detaljer för alla bokningar i intervallet
+
       const details = await fetchConfirmations([...idSet]);
-      const items = details.map((i) => unmarshall(i));
+      const items = details.map(formatBooking);
       return sendResponse(200, {
         items,
         count: items.length,
