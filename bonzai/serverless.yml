@@ -10,11 +10,16 @@ provider:
       Action:
         - dynamodb:PutItem
         - dynamodb:GetItem
+        - dynamodb:BatchGetItem 
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:DeleteItem
+        - dynamodb:TransactWriteItems
+        - dynamodb:UpdateItem
+        - dynamodb:DescribeTable
       Resource:
         - arn:aws:dynamodb:eu-north-1:*:table/bonzai-table
+        - arn:aws:dynamodb:eu-north-1:*:table/bonzai-table/index/*
 
 build:
   esbuild:
@@ -38,6 +43,13 @@ functions:
           path: /rooms
           method: post
 
+  createBooking:
+    handler: functions/createBooking/index.handler
+    events:
+      - httpApi:
+          path: /bookings
+          method: post
+
   getBookings:
     handler: functions/getBookings/index.handler
     events:
@@ -58,4 +70,3 @@ functions:
       - httpApi:
           path: /bookings/{id}
           method: delete
-

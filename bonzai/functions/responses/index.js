@@ -1,3 +1,5 @@
+// Hjälpfunktion för att skicka svar till klienten med statuskod och JSON-data
+
 export function sendResponse(statusCode, data) {
   const response = {
     statusCode: statusCode,
@@ -9,3 +11,4 @@ export function sendResponse(statusCode, data) {
   };
   return response;
 }
+

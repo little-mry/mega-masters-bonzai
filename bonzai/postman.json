@@ -1,0 +1,922 @@
+{
+	"info": {
+		"_postman_id": "0a28ca3c-2cf6-4426-91a6-7081d0faf65b",
+		"name": "Bonz-AI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43237590",
+		"_collection_link": "https://bold-comet-596367.postman.co/workspace/Alice-workspace~8c349ba3-f3ac-4d9e-82fc-c37198d4b448/collection/43237590-0a28ca3c-2cf6-4426-91a6-7081d0faf65b?action=share&source=collection_link&creator=43237590"
+	},
+	"item": [
+		{
+			"name": "/rooms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/rooms",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"rooms"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/rooms",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Wed, 17 Sep 2025 13:10:19 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "6131"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RDDxPjI0Ai0EJXA="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"rooms\": [\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 1,\n            \"roomNo\": 1,\n            \"roomType\": \"Single\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Lilac Breeze\",\n            \"price\": 500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#1\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 10,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Rosewood Haven\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#10\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 11,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Emerald Falls\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#11\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 12,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Twilight Grove\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#12\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 13,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Crystal Hollow\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#13\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 14,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Morningstar Vale\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#14\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 15,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Sunset Ridge\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#15\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 3,\n            \"roomNo\": 16,\n            \"roomType\": \"Suite\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Majestic Horizon\",\n            \"price\": 1500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#16\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 3,\n            \"roomNo\": 17,\n            \"roomType\": \"Suite\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Celestial Peak\",\n            \"price\": 1500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#17\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 3,\n            \"roomNo\": 18,\n            \"roomType\": \"Suite\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Moonlit Terrace\",\n            \"price\": 1500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#18\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 3,\n            \"roomNo\": 19,\n            \"roomType\": \"Suite\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Starlight Harbor\",\n            \"price\": 1500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#19\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 1,\n            \"roomNo\": 2,\n            \"roomType\": \"Single\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Amber Dawn\",\n            \"price\": 500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#2\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 3,\n            \"roomNo\": 20,\n            \"roomType\": \"Suite\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Aurora Palace\",\n            \"price\": 1500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#20\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 1,\n            \"roomNo\": 3,\n            \"roomType\": \"Single\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Misty Harbor\",\n            \"price\": 500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#3\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 1,\n            \"roomNo\": 4,\n            \"roomType\": \"Single\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Ivy Corner\",\n            \"price\": 500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#4\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 1,\n            \"roomNo\": 5,\n            \"roomType\": \"Single\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Silver Birch\",\n            \"price\": 500,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#5\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 6,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Golden Lily\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#6\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 7,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Velvet Meadow\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#7\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 8,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Azure Cove\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#8\"\n        },\n        {\n            \"modifiedAt\": \"2025-09-15T09:42:13.939Z\",\n            \"guestsAllowed\": 2,\n            \"roomNo\": 9,\n            \"roomType\": \"Double\",\n            \"createdAt\": \"2025-09-15T09:42:13.939Z\",\n            \"roomName\": \"Maple Retreat\",\n            \"price\": 1000,\n            \"pk\": \"ROOM\",\n            \"isAvailable\": true,\n            \"sk\": \"ROOM#9\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "/rooms",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n  { \"roomNo\": 1,  \"roomName\": \"Lilac Breeze\",      \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 2,  \"roomName\": \"Amber Dawn\",       \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 3,  \"roomName\": \"Misty Harbor\",     \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 4,  \"roomName\": \"Ivy Corner\",       \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 5,  \"roomName\": \"Silver Birch\",     \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 6,  \"roomName\": \"Golden Lily\",      \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 7,  \"roomName\": \"Velvet Meadow\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 8,  \"roomName\": \"Azure Cove\",       \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 9,  \"roomName\": \"Maple Retreat\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 10, \"roomName\": \"Rosewood Haven\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 11, \"roomName\": \"Emerald Falls\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 12, \"roomName\": \"Twilight Grove\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 13, \"roomName\": \"Crystal Hollow\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 14, \"roomName\": \"Morningstar Vale\", \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 15, \"roomName\": \"Sunset Ridge\",     \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 16, \"roomName\": \"Majestic Horizon\", \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 17, \"roomName\": \"Celestial Peak\",   \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 18, \"roomName\": \"Moonlit Terrace\",  \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 19, \"roomName\": \"Starlight Harbor\", \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 20, \"roomName\": \"Aurora Palace\",    \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/rooms",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"rooms"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "201",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  { \"roomNo\": 1,  \"roomName\": \"Lilac Breeze\",      \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 2,  \"roomName\": \"Amber Dawn\",       \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 3,  \"roomName\": \"Misty Harbor\",     \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 4,  \"roomName\": \"Ivy Corner\",       \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 5,  \"roomName\": \"Silver Birch\",     \"roomType\": \"Single\", \"guestsAllowed\": 1, \"price\": 500,  \"isAvailable\": true },\r\n  { \"roomNo\": 6,  \"roomName\": \"Golden Lily\",      \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 7,  \"roomName\": \"Velvet Meadow\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 8,  \"roomName\": \"Azure Cove\",       \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 9,  \"roomName\": \"Maple Retreat\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 10, \"roomName\": \"Rosewood Haven\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 11, \"roomName\": \"Emerald Falls\",    \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 12, \"roomName\": \"Twilight Grove\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 13, \"roomName\": \"Crystal Hollow\",   \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 14, \"roomName\": \"Morningstar Vale\", \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 15, \"roomName\": \"Sunset Ridge\",     \"roomType\": \"Double\", \"guestsAllowed\": 2, \"price\": 1000, \"isAvailable\": true },\r\n  { \"roomNo\": 16, \"roomName\": \"Majestic Horizon\", \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 17, \"roomName\": \"Celestial Peak\",   \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 18, \"roomName\": \"Moonlit Terrace\",  \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 19, \"roomName\": \"Starlight Harbor\", \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true },\r\n  { \"roomNo\": 20, \"roomName\": \"Aurora Palace\",    \"roomType\": \"Suite\",  \"guestsAllowed\": 3, \"price\": 1500, \"isAvailable\": true }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/rooms",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 07:44:00 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "27"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFm6BgHhAi0EMXQ="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"msg\": \"Rum tillagda\"\n}"
+				}
+			]
+		},
+		{
+			"name": "/bookings",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"rooms\": [\"double\", \"single\"], \r\n  \"guests\": 3,\r\n  \"checkIn\": \"2025-10-10\",\r\n  \"checkOut\": \"2025-10-12\",\r\n  \"email\": \"gest@example.com\",\r\n  \"name\": \"Maria Kjellholm\",\r\n  \"note\": \"Vi anländer runt kl 18.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "409 toomanyguests",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"rooms\": [\"double\", \"double\", \"single\"], \r\n  \"guests\": 7,\r\n  \"checkIn\": \"2025-10-10\",\r\n  \"checkOut\": \"2025-10-12\",\r\n  \"email\": \"hello@example.com\",\r\n  \"name\": \"Evert Kjellholm\",\r\n  \"note\": \"Vi anländer runt kl 19.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Wed, 17 Sep 2025 13:16:54 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "78"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RDEvEgCbAi0EMuQ="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"error\": \"Vald kombination rymmer totalt 5 gäster, men 7 efterfrågas.\"\n}"
+				},
+				{
+					"name": "201",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"rooms\": [\"double\", \"single\"], \r\n  \"guests\": 3,\r\n  \"checkIn\": \"2025-09-10\",\r\n  \"checkOut\": \"2025-09-12\",\r\n  \"email\": \"alice@example.com\",\r\n  \"name\": \"Alice Larsson\",\r\n  \"note\": \"Vi anländer runt kl 18.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 07:46:46 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "488"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFnT7jr-Ai0EJmg="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"bookingId\": \"nh66z2zF7ERT4ND8-vMzB\",\n    \"status\": \"CONFIRMED\",\n    \"createdAt\": \"2025-09-18T07:46:46.249Z\",\n    \"name\": \"Alice Larsson\",\n    \"email\": \"alice@example.com\",\n    \"checkIn\": \"2025-09-10\",\n    \"checkOut\": \"2025-09-12\",\n    \"nights\": 2,\n    \"guests\": 3,\n    \"rooms\": [\n        {\n            \"roomName\": \"Lilac Breeze\",\n            \"roomType\": \"Single\",\n            \"roomNo\": 1\n        },\n        {\n            \"roomName\": \"Rosewood Haven\",\n            \"roomType\": \"Double\",\n            \"roomNo\": 10\n        }\n    ],\n    \"totalPrice\": \"3000 SEK\"\n}"
+				},
+				{
+					"name": "400",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"rooms\": [\"double\", \"single\"], \r\n  \"guests\": 3,\r\n  \"checkIn\": \"2025-10-10\",\r\n  \"checkOut\": \"2025-10-12\",\r\n  \"email\": \"gest@example.com\",\r\n  \"name\": \"Maria Kjellholm\",\r\n  \"note\": \"Vi anländer runt kl 18.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "409 uppbokat",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"rooms\": [\"single\"], \r\n  \"guests\": 1,\r\n  \"checkIn\": \"2025-09-19\",\r\n  \"checkOut\": \"2025-09-21\",\r\n  \"email\": \"Karin@example.com\",\r\n  \"name\": \"Karin Karlsson\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 08:12:13 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "84"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFrCnidOgi0EPrg="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"error\": \"Det finns inte tillräckligt många lediga rum av vald kombination.\"\n}"
+				}
+			]
+		},
+		{
+			"name": "/bookings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/bookings",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 09:54:27 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "2238"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RF6A9gbrgi0EMPA="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n        {\n            \"bookingId\": \"p5DOd9ML532YjA_TZoW0G\",\n            \"name\": \"Lucky Luke\",\n            \"email\": \"lucas@example.com\",\n            \"guests\": 6,\n            \"checkIn\": \"2025-10-01\",\n            \"checkOut\": \"2025-10-05\",\n            \"rooms\": [\n                10,\n                11,\n                12\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T07:53:58.389Z\"\n        },\n        {\n            \"bookingId\": \"bCvel2bDx6GP8eTpfdK7d\",\n            \"name\": \"KAlle M\",\n            \"email\": \"karl@example.com\",\n            \"guests\": 1,\n            \"checkIn\": \"2025-09-29\",\n            \"checkOut\": \"2025-09-30\",\n            \"rooms\": [\n                10\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T09:01:14.644Z\"\n        },\n        {\n            \"bookingId\": \"SyZdntEBCfCu-vW6gwtnn\",\n            \"name\": \"pelle pellson\",\n            \"email\": \"pelle@example.com\",\n            \"guests\": 2,\n            \"checkIn\": \"2025-09-19\",\n            \"checkOut\": \"2025-09-20\",\n            \"rooms\": [\n                2,\n                3\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T08:11:02.371Z\"\n        },\n        {\n            \"bookingId\": \"tDdAvrQ1haOIYnmsirfBU\",\n            \"name\": \"Maria Ebbot\",\n            \"email\": \"maria@example.com\",\n            \"guests\": 1,\n            \"checkIn\": \"2025-09-19\",\n            \"checkOut\": \"2025-09-24\",\n            \"rooms\": [\n                1\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T08:08:45.311Z\"\n        },\n        {\n            \"bookingId\": \"RBAsMG4g9JxLQCqey5aQk\",\n            \"name\": \"Anders M\",\n            \"email\": \"adde@example.com\",\n            \"guests\": 1,\n            \"checkIn\": \"2025-09-29\",\n            \"checkOut\": \"2025-09-30\",\n            \"rooms\": [\n                1\n            ],\n            \"note\": \"Jag har hund\",\n            \"createdAt\": \"2025-09-18T09:00:47.745Z\"\n        },\n        {\n            \"bookingId\": \"80BcXKEePp7ysqvy6yBPG\",\n            \"name\": \"Alice Larsson\",\n            \"email\": \"alice@example.com\",\n            \"guests\": 3,\n            \"checkIn\": \"2025-09-10\",\n            \"checkOut\": \"2025-09-12\",\n            \"rooms\": [\n                1,\n                10\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T07:52:49.052Z\"\n        },\n        {\n            \"bookingId\": \"f885ptH3NXwW8wZlBwSEF\",\n            \"name\": \"ahmed beni\",\n            \"email\": \"ahmed@example.com\",\n            \"guests\": 2,\n            \"checkIn\": \"2025-09-19\",\n            \"checkOut\": \"2025-09-21\",\n            \"rooms\": [\n                4,\n                5\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T08:11:35.031Z\"\n        }\n    ],\n    \"count\": 7\n}"
+				}
+			]
+		},
+		{
+			"name": "/bookings?from",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings?from=2025-10-01&to=2025-10-20",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "2025-10-01"
+						},
+						{
+							"key": "to",
+							"value": "2025-10-20"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/bookings?from",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings?from=2025-10-01&to=2025-10-20",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "2025-10-01"
+								},
+								{
+									"key": "to",
+									"value": "2025-10-20"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 09:54:56 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "433"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RF6FojfjAi0EMfw="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n        {\n            \"bookingId\": \"p5DOd9ML532YjA_TZoW0G\",\n            \"name\": \"Lucky Luke\",\n            \"email\": \"lucas@example.com\",\n            \"guests\": 6,\n            \"checkIn\": \"2025-10-01\",\n            \"checkOut\": \"2025-10-05\",\n            \"rooms\": [\n                10,\n                11,\n                12\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T07:53:58.389Z\"\n        }\n    ],\n    \"count\": 1,\n    \"interval\": {\n        \"from\": \"2025-10-01\",\n        \"to\": \"2025-10-20\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "/booking?date",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings?date=2025-09-05",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2025-09-05"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/booking?date",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings?date=2025-09-20",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2025-09-20"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 09:55:07 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "679"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RF6HVgj6gi0EM2Q="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"items\": [\n        {\n            \"bookingId\": \"tDdAvrQ1haOIYnmsirfBU\",\n            \"name\": \"Maria Ebbot\",\n            \"email\": \"maria@example.com\",\n            \"guests\": 1,\n            \"checkIn\": \"2025-09-19\",\n            \"checkOut\": \"2025-09-24\",\n            \"rooms\": [\n                1\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T08:08:45.311Z\"\n        },\n        {\n            \"bookingId\": \"f885ptH3NXwW8wZlBwSEF\",\n            \"name\": \"ahmed beni\",\n            \"email\": \"ahmed@example.com\",\n            \"guests\": 2,\n            \"checkIn\": \"2025-09-19\",\n            \"checkOut\": \"2025-09-21\",\n            \"rooms\": [\n                4,\n                5\n            ],\n            \"note\": null,\n            \"createdAt\": \"2025-09-18T08:11:35.031Z\"\n        }\n    ],\n    \"count\": 2,\n    \"date\": \"2025-09-20\"\n}"
+				}
+			]
+		},
+		{
+			"name": "/bookings/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"checkIn\": \"2025-10-06\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings/REMUNdF__D8DIFRm0FRa2",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings",
+						"REMUNdF__D8DIFRm0FRa2"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"checkIn\": \"2025-10-11\",\r\n  \"checkOut\": \"2025-10-13\",\r\n  \"name\": \"Maria Kjellberg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings/Yc4CyLIg_yI_xEizTDDnn",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings",
+								"Yc4CyLIg_yI_xEizTDDnn"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 08:03:32 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "364"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFpxKiJEgi0EJ_g="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"updated\": true,\n    \"bookingId\": \"Yc4CyLIg_yI_xEizTDDnn\",\n    \"status\": \"CONFIRMED\",\n    \"name\": \"Maria Kjellberg\",\n    \"email\": \"maria@example.com\",\n    \"checkIn\": \"2025-10-11\",\n    \"checkOut\": \"2025-10-13\",\n    \"nights\": 2,\n    \"guests\": 1,\n    \"rooms\": [\n        {\n            \"roomNo\": 1,\n            \"roomName\": \"Lilac Breeze\",\n            \"roomType\": \"Single\"\n        }\n    ],\n    \"totalPrice\": 1000\n}"
+				}
+			]
+		},
+		{
+			"name": "/bookings/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"checkIn\": \"2025-10-11\",\r\n  \"checkOut\": \"2025-10-13\",\r\n  \"name\": \"Maria Kjellberg\"\r\n}"
+				},
+				"url": {
+					"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings/Yc4CyLIg_yI_xEizTDDnn",
+					"protocol": "https",
+					"host": [
+						"xzilimyr0d",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"bookings",
+						"Yc4CyLIg_yI_xEizTDDnn"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "200",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"checkIn\": \"2025-10-11\",\r\n  \"checkOut\": \"2025-10-13\",\r\n  \"name\": \"Maria Kjellberg\"\r\n}"
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings/Yc4CyLIg_yI_xEizTDDnn",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings",
+								"Yc4CyLIg_yI_xEizTDDnn"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 08:07:26 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "121"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFqVygULgi0EPcA="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"msg\": \"Booking Yc4CyLIg_yI_xEizTDDnn avbokad.\",\n    \"cancelledRooms\": 1,\n    \"removedLockRows\": 2,\n    \"removedLines\": 1\n}"
+				},
+				{
+					"name": "409 (48t)",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"checkIn\": \"2025-10-11\",\r\n  \"checkOut\": \"2025-10-13\",\r\n  \"name\": \"Maria Kjellberg\"\r\n}"
+						},
+						"url": {
+							"raw": "https://xzilimyr0d.execute-api.eu-north-1.amazonaws.com/bookings/tDdAvrQ1haOIYnmsirfBU",
+							"protocol": "https",
+							"host": [
+								"xzilimyr0d",
+								"execute-api",
+								"eu-north-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"bookings",
+								"tDdAvrQ1haOIYnmsirfBU"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 18 Sep 2025 08:09:02 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "66"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						},
+						{
+							"key": "access-control-allow-origin",
+							"value": "*"
+						},
+						{
+							"key": "Apigw-Requestid",
+							"value": "RFqkxgNagi0EPrg="
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"error\": \"Avbokning måste ske minst 48h innan incheckning.\"\n}"
+				}
+			]
+		}
+	]
+}
